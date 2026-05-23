@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { CheckCircle2, LayoutGrid, Sparkles, Upload } from "lucide-react";
 import { useAuthUser } from "@/components/auth/useAuthUser";
 import { SiteHeader } from "@/components/landing/site-header";
@@ -17,6 +18,26 @@ const checklist = [
 export default function JoinPage() {
   const { user, loading } = useAuthUser();
   const router = useRouter();
+
+  useEffect(() => {
+    if (user) {
+      router.replace("/profile");
+    }
+  }, [router, user]);
+
+  if (user) {
+    return (
+      <main className="relative isolate overflow-hidden">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.12),transparent_32%),radial-gradient(circle_at_80%_10%,rgba(124,58,237,0.1),transparent_24%)]" />
+        <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-6 sm:px-8 lg:px-10">
+          <SiteHeader />
+          <div className="flex flex-1 items-center justify-center py-24 text-white/64">
+            Taking you to your profile.
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   async function handleLogout() {
     const supabase = getSupabaseClient();

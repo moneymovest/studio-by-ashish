@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { RouteShell } from "@/components/landing/route-shell";
 import getSupabaseClient from "@/lib/supabaseClient";
 
@@ -148,10 +147,6 @@ export default function ProfilePage() {
         <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-5 text-sm leading-6 text-cyan-100">
           Use the account menu in the top right to log out.
         </div>
-
-        <Link href="/login" className="text-sm text-white/60 hover:text-white">
-          Switch account
-        </Link>
       </div>
     </RouteShell>
   );

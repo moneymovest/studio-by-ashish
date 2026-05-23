@@ -45,6 +45,11 @@ function SignupForm() {
   const professionalServices = ["Photographer", "Videographer", "Editor"];
 
   useEffect(() => {
+    if (user) {
+      router.replace("/profile");
+      return;
+    }
+
     const requestedAccountType = searchParams.get("accountType");
     if (
       requestedAccountType === "professional" ||
@@ -56,6 +61,22 @@ function SignupForm() {
       }
     }
   }, [searchParams]);
+
+  if (user) {
+    return (
+      <RouteShell
+        eyebrow="Account"
+        title="Redirecting..."
+        description="You are already signed in."
+        primaryLabel="Profile"
+        primaryHref="/profile"
+        secondaryLabel="Home"
+        secondaryHref="/"
+      >
+        <div className="p-6 text-white/64">Taking you to your profile.</div>
+      </RouteShell>
+    );
+  }
 
   function toggleServiceCategory(category: string) {
     setServiceCategories((current) =>
@@ -77,25 +98,6 @@ function SignupForm() {
         secondaryHref="/"
       >
         <div className="p-6 text-white/64">Checking sign-in status...</div>
-      </RouteShell>
-    );
-  }
-
-  if (user) {
-    return (
-      <RouteShell
-        eyebrow="Account"
-        title="You are already signed in"
-        description="Open your profile or use the account menu to log out before creating another account."
-        primaryLabel="Open profile"
-        primaryHref="/profile"
-        secondaryLabel="Explore"
-        secondaryHref="/professionals"
-      >
-        <div className="space-y-3 p-6 text-white/72">
-          <p>You do not need to create another account while signed in.</p>
-          <p>Use the top-right account menu to log out first.</p>
-        </div>
       </RouteShell>
     );
   }

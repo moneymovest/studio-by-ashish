@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RouteShell } from "@/components/landing/route-shell";
 import getSupabaseClient from "@/lib/supabaseClient";
@@ -19,6 +19,28 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    if (user) {
+      router.replace("/profile");
+    }
+  }, [router, user]);
+
+  if (user) {
+    return (
+      <RouteShell
+        eyebrow="Account"
+        title="Redirecting..."
+        description="You are already signed in."
+        primaryLabel="Profile"
+        primaryHref="/profile"
+        secondaryLabel="Home"
+        secondaryHref="/"
+      >
+        <div className="p-6 text-white/64">Taking you to your profile.</div>
+      </RouteShell>
+    );
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
