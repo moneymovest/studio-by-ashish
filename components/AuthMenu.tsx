@@ -96,9 +96,7 @@ export default function AuthMenu() {
         className="flex items-center gap-3 rounded-full border border-white/12 bg-white/6 px-3 py-2 text-left backdrop-blur-xl transition hover:border-cyan-300/30 hover:bg-white/10"
       >
         <img
-          src={
-            user?.user_metadata?.avatar_url || user?.avatar_url || "/favicon.ico"
-          }
+          src={user?.user_metadata?.avatar_url || "/favicon.ico"}
           alt={displayName}
           className="h-8 w-8 rounded-full border border-white/12 object-cover"
         />
