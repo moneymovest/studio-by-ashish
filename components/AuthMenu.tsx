@@ -36,11 +36,13 @@ export default function AuthMenu() {
       setUser((res as any)?.data?.session?.user ?? null);
       setLoading(false);
 
-      const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-        if (!mounted) return;
-        setUser((session as any)?.user ?? null);
-        setLoading(false);
-      });
+      const { data: sub } = supabase.auth.onAuthStateChange(
+        (_event, session) => {
+          if (!mounted) return;
+          setUser((session as any)?.user ?? null);
+          setLoading(false);
+        },
+      );
 
       // ensure we unsubscribe when unmounting
       return () => {
@@ -74,8 +76,11 @@ export default function AuthMenu() {
 
   if (!user) {
     return (
-      <div className="flex items-center gap-2">
-        <Link href="/login" className="text-sm text-white/80 hover:text-white">
+      <div className="flex items-center gap-3">
+        <Link
+          href="/login"
+          className="inline-flex h-9 items-center rounded-full border border-white/12 bg-white/6 px-3 text-sm font-medium text-white/90 backdrop-blur-xl transition hover:border-cyan-300/30 hover:bg-white/10"
+        >
           Sign in
         </Link>
         <Link

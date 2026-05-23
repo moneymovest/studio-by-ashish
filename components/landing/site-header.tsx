@@ -76,13 +76,6 @@ export function SiteHeader() {
       </nav>
 
       <div className="flex items-center gap-4">
-        <Link
-          href="/professionals"
-          className="hidden md:inline-flex h-11 items-center rounded-full border border-white/12 bg-white/6 px-5 text-sm font-medium text-white/90 backdrop-blur-xl transition hover:border-cyan-300/30 hover:bg-white/10"
-        >
-          Start exploring
-        </Link>
-
         <AuthMenu />
       </div>
     </header>
