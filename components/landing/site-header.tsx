@@ -5,8 +5,7 @@ import { useEffect } from "react";
 import AuthMenu from "@/components/AuthMenu";
 
 export function SiteHeader() {
-  useEffect(() => {
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <header className="relative z-10 flex items-center justify-between border-b border-white/10 py-5">
@@ -19,7 +18,7 @@ export function SiteHeader() {
             FRAMEBOOK
           </p>
           <p className="text-xs uppercase tracking-[0.3em] text-white/45">
-            creative studio network
+            professional's network
           </p>
         </div>
       </Link>

@@ -4,12 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight, CheckCircle2, PlayCircle, Sparkles } from "lucide-react";
 
-const heroWords = [
-  "Photographers",
-  "Videographers",
-  "Editors",
-  "Creative experts",
-];
+const heroWords = ["Photographers", "Videographers", "Editors"];
 
 const trustPoints = [
   "Portfolio-first profiles",
@@ -52,7 +47,7 @@ export function Hero() {
       >
         <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium uppercase tracking-[0.28em] text-white/60 backdrop-blur-xl">
           <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
-          trusted creative network
+          trusted professionals
         </div>
 
         <div className="space-y-5">
