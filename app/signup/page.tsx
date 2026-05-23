@@ -113,9 +113,7 @@ function SignupForm() {
         return;
       }
 
-      const nextPath = `/login?message=${encodeURIComponent(
-        "Account created. Check your email to confirm your account before signing in.",
-      )}`;
+      const nextPath = `/verify-email?email=${encodeURIComponent(email)}`;
 
       router.replace(nextPath);
     } catch (err: unknown) {
