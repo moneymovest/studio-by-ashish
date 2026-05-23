@@ -4,12 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { RouteShell } from "@/components/landing/route-shell";
 import getSupabaseClient from "@/lib/supabaseClient";
+import { useAuthUser } from "@/components/auth/useAuthUser";
 
 type LoginPageProps = {
   searchParams?: { message?: string };
 };
 
 export default function LoginPage({ searchParams }: LoginPageProps) {
+  const { user } = useAuthUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -160,12 +162,14 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
               {loading ? "Signing in..." : "Sign in"}
             </button>
 
-            <a
-              href="/signup"
-              className="text-sm text-white/70 hover:text-white"
-            >
-              Create account
-            </a>
+            {!user && (
+              <a
+                href="/signup"
+                className="text-sm text-white/70 hover:text-white"
+              >
+                Create account
+              </a>
+            )}
           </div>
 
           <button

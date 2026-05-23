@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RouteShell } from "@/components/landing/route-shell";
 import getSupabaseClient from "@/lib/supabaseClient";
+import { useAuthUser } from "@/components/auth/useAuthUser";
 
 export default function SignupPage() {
   return (
@@ -29,6 +30,7 @@ export default function SignupPage() {
 
 function SignupForm() {
   const searchParams = useSearchParams();
+  const { user, loading: authLoading } = useAuthUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -60,6 +62,41 @@ function SignupForm() {
       current.includes(category)
         ? current.filter((item) => item !== category)
         : [...current, category],
+    );
+  }
+
+  if (authLoading) {
+    return (
+      <RouteShell
+        eyebrow="Account"
+        title="Create an account"
+        description="Loading account state."
+        primaryLabel="Explore"
+        primaryHref="/professionals"
+        secondaryLabel="Back"
+        secondaryHref="/"
+      >
+        <div className="p-6 text-white/64">Checking sign-in status...</div>
+      </RouteShell>
+    );
+  }
+
+  if (user) {
+    return (
+      <RouteShell
+        eyebrow="Account"
+        title="You are already signed in"
+        description="Open your profile or use the account menu to log out before creating another account."
+        primaryLabel="Open profile"
+        primaryHref="/profile"
+        secondaryLabel="Explore"
+        secondaryHref="/professionals"
+      >
+        <div className="space-y-3 p-6 text-white/72">
+          <p>You do not need to create another account while signed in.</p>
+          <p>Use the top-right account menu to log out first.</p>
+        </div>
+      </RouteShell>
     );
   }
 
@@ -104,6 +141,31 @@ function SignupForm() {
         setError(signUpError.message || "Sign up failed");
         setLoading(false);
         return;
+      }
+
+      const userId = data?.user?.id;
+      if (userId) {
+        const profileResponse = await fetch("/api/profiles", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId,
+            fullName: name,
+          }),
+        });
+
+        if (!profileResponse.ok) {
+          const payload = (await profileResponse.json().catch(() => ({}))) as {
+            error?: string;
+          };
+          setError(
+            payload.error || "Account created, but profile creation failed.",
+          );
+          setLoading(false);
+          return;
+        }
       }
 
       const session = data?.session ?? null;

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight, CheckCircle2, PlayCircle, Sparkles } from "lucide-react";
+import { useAuthUser } from "@/components/auth/useAuthUser";
 
 const heroWords = ["Photographers", "Videographers", "Editors"];
 
@@ -28,6 +29,8 @@ const featureCards = [
 ];
 
 export function Hero() {
+  const { user, loading } = useAuthUser();
+
   return (
     <section
       id="discover"
@@ -88,13 +91,15 @@ export function Hero() {
             whileHover={{ y: -2, scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
           >
-            <Link
-              href="/join"
-              className="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/4 px-7 text-sm font-semibold text-white/88 backdrop-blur-xl transition hover:border-cyan-300/30 hover:bg-white/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
-            >
-              <PlayCircle className="h-4 w-4 text-cyan-300" />
-              Join as a Professional
-            </Link>
+            {!loading && !user ? (
+              <Link
+                href="/join"
+                className="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/4 px-7 text-sm font-semibold text-white/88 backdrop-blur-xl transition hover:border-cyan-300/30 hover:bg-white/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              >
+                <PlayCircle className="h-4 w-4 text-cyan-300" />
+                Join as a Professional
+              </Link>
+            ) : null}
           </motion.div>
         </div>
 

@@ -1,18 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, LogOut, UserCircle2 } from "lucide-react";
 import getSupabaseClient from "@/lib/supabaseClient";
+import { useAuthUser } from "@/components/auth/useAuthUser";
 
 export default function AuthMenu() {
-  type User = {
-    email?: string;
-    user_metadata?: { full_name?: string; avatar_url?: string };
-  } | null;
-
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<User>(null);
+  const { user, loading } = useAuthUser();
   const [open, setOpen] = useState(false);
 
   const displayName = useMemo(
@@ -20,53 +15,10 @@ export default function AuthMenu() {
     [user],
   );
 
-  useEffect(() => {
-    let mounted = true;
-
-    async function init() {
-      const supabase = getSupabaseClient();
-      if (!mounted) return;
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
-
-      const res = await supabase.auth.getSession();
-      if (!mounted) return;
-      setUser((res as any)?.data?.session?.user ?? null);
-      setLoading(false);
-
-      const { data: sub } = supabase.auth.onAuthStateChange(
-        (_event, session) => {
-          if (!mounted) return;
-          setUser((session as any)?.user ?? null);
-          setLoading(false);
-        },
-      );
-
-      // ensure we unsubscribe when unmounting
-      return () => {
-        mounted = false;
-        try {
-          sub?.subscription?.unsubscribe?.();
-        } catch {}
-      };
-    }
-
-    const cleanupPromise = init();
-    // cleanup when unmounting
-    return () => {
-      mounted = false;
-      // if init returns a cleanup, call it when ready
-      Promise.resolve(cleanupPromise).then((fn: any) => fn && fn());
-    };
-  }, []);
-
   async function signOut() {
     const supabase = getSupabaseClient();
     if (!supabase) return;
     await supabase.auth.signOut();
-    setUser(null);
     setOpen(false);
   }
 

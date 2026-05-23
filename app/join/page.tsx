@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { CheckCircle2, LayoutGrid, Sparkles, Upload } from "lucide-react";
+import { useAuthUser } from "@/components/auth/useAuthUser";
 import { SiteHeader } from "@/components/landing/site-header";
+import getSupabaseClient from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
 
 const checklist = [
   "Create your profile and brand story",
@@ -10,6 +15,16 @@ const checklist = [
 ];
 
 export default function JoinPage() {
+  const { user, loading } = useAuthUser();
+  const router = useRouter();
+
+  async function handleLogout() {
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+    await supabase.auth.signOut();
+    router.refresh();
+  }
+
   return (
     <main className="relative isolate overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.12),transparent_32%),radial-gradient(circle_at_80%_10%,rgba(124,58,237,0.1),transparent_24%)]" />
@@ -91,14 +106,36 @@ export default function JoinPage() {
               create an account and continue into the onboarding flow.
             </div>
 
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/signup?accountType=professional"
-                className="inline-flex h-12 items-center justify-center rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] px-6 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(56,189,248,0.18)] transition hover:scale-[1.01]"
-              >
-                Create professional account
-              </Link>
-            </div>
+            {loading ? null : user ? (
+              <div className="mt-4 space-y-3 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-sm leading-6 text-cyan-100/90">
+                You are already signed in. Open your profile or log out to
+                switch accounts.
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                  <Link
+                    href="/profile"
+                    className="inline-flex h-12 items-center justify-center rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] px-6 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(56,189,248,0.18)] transition hover:scale-[1.01]"
+                  >
+                    Open profile
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="inline-flex h-12 items-center justify-center rounded-full border border-white/15 bg-white/4 px-6 text-sm font-semibold text-white/88 transition hover:border-cyan-300/30 hover:bg-white/8"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/signup?accountType=professional"
+                  className="inline-flex h-12 items-center justify-center rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] px-6 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(56,189,248,0.18)] transition hover:scale-[1.01]"
+                >
+                  Create professional account
+                </Link>
+              </div>
+            )}
           </div>
         </section>
       </div>
