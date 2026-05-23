@@ -1,47 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import AuthMenu from "@/components/AuthMenu";
 
-const navItems = [
-  { label: "Explore professionals", href: "/professionals" },
-  { label: "Join as a pro", href: "/join" },
-  { label: "How it works", href: "#how-it-works" },
-];
-
 export function SiteHeader() {
-  const router = useRouter();
-  const pathname = usePathname();
-
-  function handleHashClick(e: React.MouseEvent, href: string) {
-    if (!href.startsWith("#")) return;
-    e.preventDefault();
-    const targetId = href.replace("#", "");
-
-    if (pathname === "/") {
-      const el = document.getElementById(targetId);
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      return;
-    }
-
-    router.push(`/`);
-    setTimeout(() => {
-      const el = document.getElementById(targetId);
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 250);
-  }
-
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const hash = window.location.hash;
-      if (hash) {
-        const id = hash.replace("#", "");
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }
   }, []);
 
   return (
@@ -59,21 +23,6 @@ export function SiteHeader() {
           </p>
         </div>
       </Link>
-
-      <nav className="hidden items-center gap-6 md:flex">
-        {navItems.map((item) => (
-          <a
-            key={item.label}
-            href={item.href}
-            onClick={(e) =>
-              item.href.startsWith("#") && handleHashClick(e, item.href)
-            }
-            className="text-sm text-white/60 transition hover:text-white"
-          >
-            {item.label}
-          </a>
-        ))}
-      </nav>
 
       <div className="flex items-center gap-4">
         <AuthMenu />
