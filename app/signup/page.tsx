@@ -108,14 +108,13 @@ function SignupForm() {
       const session = data?.session ?? null;
 
       if (session) {
-        router.replace("/");
+        router.replace("/profile");
         return;
       }
 
-      const nextPath =
-        accountType === "professional"
-          ? `/join?message=${encodeURIComponent("Account created. Complete your professional setup after sign in.")}`
-          : `/login?message=${encodeURIComponent("Account created. Please sign in with your credentials.")}`;
+      const nextPath = `/login?message=${encodeURIComponent(
+        "Account created. Check your email to confirm your account before signing in.",
+      )}`;
 
       router.replace(nextPath);
     } catch (err: unknown) {

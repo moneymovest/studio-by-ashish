@@ -36,14 +36,24 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
         password,
       });
       if (signInError) {
-        setError(signInError.message || "Sign in failed");
+        const message = signInError.message || "Sign in failed";
+        if (message.toLowerCase().includes("invalid login credentials")) {
+          setError(
+            "Invalid credentials or unverified email. If you recently signed up, check your inbox for the confirmation link first.",
+          );
+        } else {
+          setError(message);
+        }
         setLoading(false);
         return;
       }
 
-      router.replace("/");
+      router.replace("/profile");
     } catch (err: unknown) {
-      const message = err && typeof err === "object" && "message" in err ? (err as any).message : String(err);
+      const message =
+        err && typeof err === "object" && "message" in err
+          ? (err as any).message
+          : String(err);
       setError(message);
     } finally {
       setLoading(false);

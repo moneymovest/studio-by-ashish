@@ -6,7 +6,14 @@ import { RouteShell } from "@/components/landing/route-shell";
 import getSupabaseClient from "@/lib/supabaseClient";
 
 export default function ProfilePage() {
-  type User = { email?: string; user_metadata?: { full_name?: string } } | null;
+  type User = {
+    email?: string;
+    user_metadata?: {
+      full_name?: string;
+      account_type?: "customer" | "professional";
+      service_categories?: string[];
+    };
+  } | null;
   const [user, setUser] = useState<User>(null);
   const [loading, setLoading] = useState(true);
 
@@ -78,12 +85,61 @@ export default function ProfilePage() {
     >
       <div className="space-y-6 p-6">
         <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-          <p className="text-xs uppercase tracking-[0.28em] text-white/42">Email</p>
+          <p className="text-xs uppercase tracking-[0.28em] text-white/42">
+            Account type
+          </p>
+          <p className="mt-2 text-lg text-white">
+            {(user.user_metadata?.account_type ?? "customer") === "professional"
+              ? "Professional"
+              : "Customer"}
+          </p>
+        </div>
+
+        {(user.user_metadata?.account_type ?? "customer") === "professional" ? (
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+            <p className="text-xs uppercase tracking-[0.28em] text-white/42">
+              Services
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(user.user_metadata?.service_categories ?? []).length > 0 ? (
+                user.user_metadata?.service_categories?.map((service) => (
+                  <span
+                    key={service}
+                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.24em] text-white/72"
+                  >
+                    {service}
+                  </span>
+                ))
+              ) : (
+                <p className="text-sm text-white/64">
+                  No services selected yet.
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+            <p className="text-xs uppercase tracking-[0.28em] text-white/42">
+              Customer hub
+            </p>
+            <p className="mt-2 text-sm leading-6 text-white/72">
+              Use this profile to manage saved professionals, bookings, and your
+              project preferences.
+            </p>
+          </div>
+        )}
+
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+          <p className="text-xs uppercase tracking-[0.28em] text-white/42">
+            Email
+          </p>
           <p className="mt-2 text-lg text-white">{user.email}</p>
         </div>
 
         <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-          <p className="text-xs uppercase tracking-[0.28em] text-white/42">Display name</p>
+          <p className="text-xs uppercase tracking-[0.28em] text-white/42">
+            Display name
+          </p>
           <p className="mt-2 text-lg text-white">
             {user.user_metadata?.full_name || "Not set"}
           </p>
