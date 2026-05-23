@@ -13,13 +13,16 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setNotice(null);
 
     const supabase = getSupabaseClient();
     if (!supabase) {
@@ -60,6 +63,40 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
     }
   }
 
+  async function resendConfirmation() {
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      setError(
+        "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+      );
+      return;
+    }
+
+    if (!email) {
+      setError(
+        "Enter your email first so we can resend the confirmation link.",
+      );
+      return;
+    }
+
+    setResending(true);
+    setError(null);
+    setNotice(null);
+
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
+      email,
+    });
+
+    if (resendError) {
+      setError(resendError.message || "Could not resend confirmation email.");
+    } else {
+      setNotice("Confirmation email sent again. Check inbox and spam.");
+    }
+
+    setResending(false);
+  }
+
   return (
     <RouteShell
       eyebrow="Account"
@@ -75,6 +112,12 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
           {searchParams?.message && (
             <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/10 px-4 py-3 text-sm text-cyan-100">
               {searchParams.message}
+            </div>
+          )}
+
+          {notice && (
+            <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-100">
+              {notice}
             </div>
           )}
 
@@ -124,6 +167,17 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
               Create account
             </a>
           </div>
+
+          <button
+            type="button"
+            onClick={resendConfirmation}
+            disabled={resending}
+            className="text-sm text-cyan-300 transition hover:text-white disabled:opacity-60"
+          >
+            {resending
+              ? "Resending confirmation..."
+              : "Resend confirmation email"}
+          </button>
         </div>
       </form>
     </RouteShell>

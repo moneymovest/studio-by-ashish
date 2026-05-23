@@ -90,6 +90,7 @@ function SignupForm() {
         email,
         password,
         options: {
+          emailRedirectTo: `${window.location.origin}/login`,
           data: {
             full_name: name,
             account_type: accountType,
