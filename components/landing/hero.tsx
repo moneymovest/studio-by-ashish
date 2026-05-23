@@ -18,14 +18,14 @@ const trustPoints = [
 ];
 
 const metrics = [
-  { value: "120+", label: "curated talent profiles" },
-  { value: "24h", label: "average creator response" },
+  { value: "120+", label: "curated professional profiles" },
+  { value: "24h", label: "average response time" },
   { value: "4.9/5", label: "client satisfaction" },
 ];
 
 const featureCards = [
   {
-    title: "Creator-ready profiles",
+    title: "Professional-ready profiles",
     body: "Showcase your best work with a polished, studio-grade presentation.",
   },
   {
@@ -154,7 +154,7 @@ export function Hero() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm uppercase tracking-[0.28em] text-white/42">
-                  featured creator
+                  featured professional
                 </p>
                 <h2 className="mt-2 text-2xl font-medium tracking-[-0.04em] text-white">
                   Jordan Lee, Director / Editor

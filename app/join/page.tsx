@@ -18,13 +18,13 @@ export default function JoinPage() {
         <section className="grid gap-10 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-24">
           <div className="space-y-6">
             <p className="text-sm uppercase tracking-[0.32em] text-cyan-300/80">
-              Creator onboarding
+              Professional onboarding
             </p>
             <h1 className="max-w-2xl text-5xl font-medium tracking-[-0.06em] text-white sm:text-6xl">
               Build a profile that feels premium from the first scroll.
             </h1>
             <p className="max-w-xl text-lg leading-8 text-white/64">
-              This entry point is designed for creators who want a clean,
+              This entry point is designed for professionals who want a clean,
               polished way to present services and manage client interest.
             </p>
 

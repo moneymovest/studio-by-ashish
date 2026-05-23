@@ -14,9 +14,9 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Framebook | Premium creative booking and portfolios",
+  title: "Framebook | Premium professional booking and portfolios",
   description:
-    "Framebook helps creators showcase their work and helps clients book premium creative talent without friction.",
+    "Framebook helps professionals showcase their work and helps clients book premium creative talent without friction.",
 };
 
 export default function RootLayout({

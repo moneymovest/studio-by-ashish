@@ -22,7 +22,7 @@ export default async function ProfessionalsPage() {
               they serve.
             </h1>
             <p className="max-w-xl text-lg leading-8 text-white/64">
-              Browse vetted creators — data shown reflects live Supabase
+              Browse vetted professionals — data shown reflects live Supabase
               records.
             </p>
 

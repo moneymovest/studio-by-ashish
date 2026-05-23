@@ -9,6 +9,9 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [accountType, setAccountType] = useState<"customer" | "professional">(
+    "customer",
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -31,7 +34,7 @@ export default function SignupPage() {
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { full_name: name } },
+        options: { data: { full_name: name, account_type: accountType } },
       });
 
       if (signUpError) {
@@ -47,11 +50,17 @@ export default function SignupPage() {
         return;
       }
 
-      router.replace(
-        `/login?message=${encodeURIComponent("Account created. Please sign in with your credentials.")}`,
-      );
+      const nextPath =
+        accountType === "professional"
+          ? `/join?message=${encodeURIComponent("Account created. Complete your professional setup after sign in.")}`
+          : `/login?message=${encodeURIComponent("Account created. Please sign in with your credentials.")}`;
+
+      router.replace(nextPath);
     } catch (err: unknown) {
-      const message = err && typeof err === "object" && "message" in err ? (err as any).message : String(err);
+      const message =
+        err && typeof err === "object" && "message" in err
+          ? (err as any).message
+          : String(err);
       setError(message);
     } finally {
       setLoading(false);
@@ -62,7 +71,7 @@ export default function SignupPage() {
     <RouteShell
       eyebrow="Account"
       title="Create an account"
-      description="Get started as a creator or client — set up your profile and services."
+      description="Choose whether you are signing up as a customer or a professional."
       primaryLabel="Explore"
       primaryHref="/professionals"
       secondaryLabel="Back"
@@ -111,6 +120,22 @@ export default function SignupPage() {
             required
             className="w-full rounded-lg border border-white/12 bg-white/4 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-cyan-300/50"
           />
+
+          <label htmlFor="account_type" className="block text-sm text-white/70">
+            I’m signing up as
+          </label>
+          <select
+            id="account_type"
+            title="account type"
+            value={accountType}
+            onChange={(e) =>
+              setAccountType(e.target.value as "customer" | "professional")
+            }
+            className="w-full rounded-lg border border-white/12 bg-white/4 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-cyan-300/50"
+          >
+            <option value="customer">Customer</option>
+            <option value="professional">Professional</option>
+          </select>
 
           {error && <div className="text-sm text-rose-400">{error}</div>}
 

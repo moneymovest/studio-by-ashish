@@ -27,7 +27,7 @@ export default async function ProfessionalPage({ params }: Params) {
   return (
     <RouteShell
       eyebrow="Professional"
-      title={pro.full_name ?? "Creator profile"}
+      title={pro.full_name ?? "Professional profile"}
       description={pro.bio ?? ""}
       primaryLabel="Message"
       primaryHref="#"

@@ -4,7 +4,7 @@ const featureTiles = [
   {
     icon: Camera,
     title: "Portfolio-first layouts",
-    body: "Give every creator a cinematic, high-end presence that puts the work front and center.",
+    body: "Give every professional a cinematic, high-end presence that puts the work front and center.",
   },
   {
     icon: Workflow,
@@ -68,7 +68,7 @@ export function FeatureBento() {
             {[
               [
                 "1",
-                "Creators build a polished profile with services, media, and proof of work.",
+                "Professionals build a polished profile with services, media, and proof of work.",
               ],
               [
                 "2",
