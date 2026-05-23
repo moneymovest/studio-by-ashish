@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CheckCircle2, LayoutGrid, Sparkles, Upload } from "lucide-react";
 import { SiteHeader } from "@/components/landing/site-header";
 
@@ -86,8 +87,23 @@ export default function JoinPage() {
             </div>
 
             <div className="mt-6 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-sm leading-6 text-cyan-100/90">
-              The live signup flow will connect here once we define the exact
-              profile and services schema from Supabase.
+              Your professional signup is ready now. Use the button below to
+              create an account and continue into the onboarding flow.
+            </div>
+
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/signup?accountType=professional"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] px-6 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(56,189,248,0.18)] transition hover:scale-[1.01]"
+              >
+                Create professional account
+              </Link>
+              <Link
+                href="/signup"
+                className="inline-flex h-12 items-center justify-center rounded-full border border-white/15 bg-white/4 px-6 text-sm font-semibold text-white/88 backdrop-blur-xl transition hover:border-cyan-300/30 hover:bg-white/8"
+              >
+                Create customer account
+              </Link>
             </div>
           </div>
         </section>

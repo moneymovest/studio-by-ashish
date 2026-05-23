@@ -85,7 +85,7 @@ export default function AuthMenu() {
         </Link>
         <Link
           href="/signup"
-          className="hidden sm:inline-flex h-9 items-center rounded-full border border-white/12 bg-white/6 px-3 text-sm font-medium text-white/90"
+          className="inline-flex h-9 items-center rounded-full border border-white/12 bg-white/6 px-3 text-sm font-medium text-white/90 backdrop-blur-xl transition hover:border-cyan-300/30 hover:bg-white/10"
         >
           Create account
         </Link>

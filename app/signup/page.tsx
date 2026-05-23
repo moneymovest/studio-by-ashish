@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { RouteShell } from "@/components/landing/route-shell";
 import getSupabaseClient from "@/lib/supabaseClient";
 
 export default function SignupPage() {
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -18,6 +19,19 @@ export default function SignupPage() {
   const router = useRouter();
 
   const professionalServices = ["Photographer", "Videographer", "Editor"];
+
+  useEffect(() => {
+    const requestedAccountType = searchParams.get("accountType");
+    if (
+      requestedAccountType === "professional" ||
+      requestedAccountType === "customer"
+    ) {
+      setAccountType(requestedAccountType);
+      if (requestedAccountType === "customer") {
+        setServiceCategories([]);
+      }
+    }
+  }, [searchParams]);
 
   function toggleServiceCategory(category: string) {
     setServiceCategories((current) =>
