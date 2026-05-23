@@ -17,12 +17,7 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const professionalServices = [
-    "Photographer",
-    "Videographer",
-    "Editor",
-    "Other creative service",
-  ];
+  const professionalServices = ["Photographer", "Videographer", "Editor"];
 
   function toggleServiceCategory(category: string) {
     setServiceCategories((current) =>
