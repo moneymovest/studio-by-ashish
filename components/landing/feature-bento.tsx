@@ -33,9 +33,10 @@ export function FeatureBento() {
           return (
             <article
               key={tile.title}
-              className="group rounded-[1.75rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-cyan-300/25 hover:bg-white/7"
+              className="group rounded-[1.75rem] border border-white/12 bg-[#070707]/80 p-6 backdrop-blur-xl cursor-default"
+              aria-hidden
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-cyan-300 shadow-[0_0_30px_rgba(56,189,248,0.08)]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/12 bg-white/6 text-cyan-300">
                 <Icon className="h-5 w-5" />
               </div>
               <h3 className="mt-5 text-lg font-medium tracking-[-0.03em] text-white">
@@ -80,7 +81,7 @@ export function FeatureBento() {
             ].map(([step, text]) => (
               <div
                 key={step}
-                className="rounded-3xl border border-white/10 bg-[#0b0b0b]/80 p-5"
+                className="rounded-3xl border border-white/12 bg-[#0b0b0b]/88 p-5"
               >
                 <p className="text-xs uppercase tracking-[0.32em] text-cyan-300">
                   Step {step}

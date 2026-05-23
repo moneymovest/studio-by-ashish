@@ -1,4 +1,5 @@
 import { ArrowUpRight, Search, SlidersHorizontal, Star } from "lucide-react";
+import Link from "next/link";
 import { SiteHeader } from "@/components/landing/site-header";
 import { getProfessionals, Professional } from "@/app/actions/professional";
 
@@ -99,9 +100,12 @@ export default async function ProfessionalsPage() {
 
                 <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4">
                   <div />
-                  <button className="inline-flex items-center gap-2 text-sm font-medium text-cyan-300 transition hover:text-white">
+                  <Link
+                    href={`/professionals/${professional.id}`}
+                    className="inline-flex items-center gap-2 text-sm font-medium text-cyan-300 transition hover:text-white"
+                  >
                     View profile <ArrowUpRight className="h-4 w-4" />
-                  </button>
+                  </Link>
                 </div>
               </article>
             ))}

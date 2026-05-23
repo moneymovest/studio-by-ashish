@@ -81,3 +81,42 @@ export async function getProfessionals(limit = 50): Promise<Professional[]> {
     };
   });
 }
+
+export async function getProfessionalById(
+  id: string,
+): Promise<Professional | null> {
+  const supabaseAdmin = getSupabaseAdmin();
+  if (!supabaseAdmin) return null;
+
+  const { data: pro, error } = await supabaseAdmin
+    .from("professionals")
+    .select("*")
+    .eq("id", id)
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !pro) return null;
+
+  const uid = String(pro["user_id"] ?? "");
+
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("id, full_name, avatar_url")
+    .eq("id", uid)
+    .limit(1)
+    .maybeSingle();
+
+  return {
+    id: String(pro["id"] ?? ""),
+    user_id: uid,
+    categories: (pro["categories"] as string[]) || [],
+    bio: (pro["bio"] as string) || undefined,
+    hourly_rate: (pro["hourly_rate"] as number) || undefined,
+    travel_rate_per_km: (pro["travel_rate_per_km"] as number) || undefined,
+    service_radius_km: (pro["service_radius_km"] as number) || undefined,
+    rating: (pro["rating"] as number) || undefined,
+    total_reviews: (pro["total_reviews"] as number) || undefined,
+    full_name: (profile?.["full_name"] as string) || undefined,
+    avatar_url: (profile?.["avatar_url"] as string) || undefined,
+  };
+}
