@@ -5,12 +5,10 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, CheckCircle2, PlayCircle, Sparkles } from "lucide-react";
 
 const heroWords = [
-  "Premium",
-  "creative",
-  "booking",
-  "for",
-  "modern",
-  "studios",
+  "Photographers",
+  "Videographers",
+  "Editors",
+  "Creative experts",
 ];
 
 const trustPoints = [
@@ -54,37 +52,32 @@ export function Hero() {
       >
         <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium uppercase tracking-[0.28em] text-white/60 backdrop-blur-xl">
           <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
-          premium studio network
+          trusted creative network
         </div>
 
         <div className="space-y-5">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             {heroWords.map((word, index) => (
               <motion.span
                 key={word}
-                initial={{ opacity: 0, y: 18 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.5,
-                  delay: 0.08 * index,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium uppercase tracking-[0.3em] text-white/58 backdrop-blur-xl"
+                transition={{ duration: 0.45, delay: 0.06 * index }}
+                className="inline-flex items-center rounded-full bg-white/6 px-3 py-1 text-sm font-semibold text-white/80"
               >
                 {word}
               </motion.span>
             ))}
           </div>
 
-          <h1 className="max-w-3xl text-5xl font-medium tracking-[-0.06em] text-white sm:text-6xl lg:text-7xl">
-            The premium home for creators who want their work to feel as sharp
-            as the work itself.
+          <h1 className="max-w-3xl text-4xl font-extrabold leading-tight tracking-[-0.02em] text-white sm:text-5xl lg:text-6xl">
+            Book Trusted Creative Professionals in Minutes
           </h1>
 
-          <p className="max-w-2xl text-lg leading-8 text-white/64 sm:text-xl">
-            Framebook helps independent media creators present a polished
-            portfolio, manage clients cleanly, and give brands a faster path to
-            vetted talent.
+          <p className="max-w-2xl text-lg leading-8 text-white/72 sm:text-xl">
+            Find verified photographers, videographers, editors, and creative
+            experts for weddings, events, businesses, content creation, and
+            personal projects.
           </p>
         </div>
 
@@ -95,9 +88,9 @@ export function Hero() {
           >
             <Link
               href="/professionals"
-              className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] px-7 text-sm font-semibold text-white shadow-[0_0_40px_rgba(56,189,248,0.25)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80"
+              className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#06b6d4,#7c3aed)] px-7 text-sm font-semibold text-white shadow-[0_0_40px_rgba(56,189,248,0.24)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80"
             >
-              Explore Professionals
+              Find Professionals
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </motion.div>
