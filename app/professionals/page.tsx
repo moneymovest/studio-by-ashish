@@ -3,6 +3,8 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/landing/site-header";
 import { getProfessionals, Professional } from "@/app/actions/professional";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProfessionalsPage() {
   const professionals: Professional[] = await getProfessionals(50);
 

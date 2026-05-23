@@ -1,6 +1,8 @@
 import { RouteShell } from "@/components/landing/route-shell";
 import { getProfessionalById } from "@/app/actions/professional";
 
+export const dynamic = "force-dynamic";
+
 type Params = {
   params: { id: string };
 };

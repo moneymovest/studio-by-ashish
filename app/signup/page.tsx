@@ -1,11 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RouteShell } from "@/components/landing/route-shell";
 import getSupabaseClient from "@/lib/supabaseClient";
 
 export default function SignupPage() {
+  return (
+    <Suspense
+      fallback={
+        <RouteShell
+          eyebrow="Account"
+          title="Create an account"
+          description="Loading signup options."
+          primaryLabel="Explore"
+          primaryHref="/professionals"
+          secondaryLabel="Back"
+          secondaryHref="/"
+        >
+          <div className="p-6 text-white/64">Loading signup form...</div>
+        </RouteShell>
+      }
+    >
+      <SignupForm />
+    </Suspense>
+  );
+}
+
+function SignupForm() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
