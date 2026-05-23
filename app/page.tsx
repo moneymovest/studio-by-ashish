@@ -10,6 +10,11 @@ export default function Home() {
         <SiteHeader />
         <Hero />
         <FeatureBento />
+        <footer className="mt-10 border-t border-white/6 py-6">
+          <div className="mx-auto max-w-3xl text-center text-sm text-white/60">
+            FrameBook By Ashish
+          </div>
+        </footer>
       </div>
     </main>
   );
