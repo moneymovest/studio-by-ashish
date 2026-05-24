@@ -12,7 +12,6 @@ export function getSupabaseAdmin(): SupabaseClient | null {
     // Log and return null to avoid crashing during builds when env is misconfigured
     // (e.g., local dev without .env.local set).
     // Server actions should check for null and handle gracefully.
-    // eslint-disable-next-line no-console
     console.error("Failed to create Supabase admin client", err);
     return null;
   }

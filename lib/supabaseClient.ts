@@ -9,7 +9,6 @@ export function getSupabaseClient(): SupabaseClient | null {
   try {
     return createClient(url, key);
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error("Failed to create Supabase client", err);
     return null;
   }

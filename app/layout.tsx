@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 import { LoaderProvider } from "@/components/LoaderProvider";
 import "./globals.css";
@@ -20,6 +20,11 @@ export const metadata: Metadata = {
     "Framebook helps professionals showcase their work and helps clients book premium creative talent without friction.",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,7 +35,7 @@ export default function RootLayout({
       lang="en"
       className={`${spaceGrotesk.variable} ${ibmPlexMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-[#050505] text-white">
+      <body className="min-h-full overflow-x-clip bg-[#050505] text-white">
         <LoaderProvider>{children}</LoaderProvider>
       </body>
     </html>

@@ -77,10 +77,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
 
       router.replace("/profile");
     } catch (err: unknown) {
-      const message =
-        err && typeof err === "object" && "message" in err
-          ? (err as any).message
-          : String(err);
+      const message = err instanceof Error ? err.message : String(err);
       setError(message);
     } finally {
       setLoading(false);
@@ -131,7 +128,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
       secondaryLabel="Back"
       secondaryHref="/"
     >
-      <form onSubmit={handleSubmit} className="p-6">
+      <form onSubmit={handleSubmit} className="p-4 sm:p-6">
         <div className="max-w-md space-y-4">
           {searchParams?.message && (
             <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/10 px-4 py-3 text-sm text-cyan-100">
@@ -156,7 +153,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full rounded-lg border border-white/12 bg-white/4 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-cyan-300/50"
+            className="min-h-11 w-full rounded-lg border border-white/12 bg-white/4 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-cyan-300/50"
           />
 
           <label htmlFor="password" className="block text-sm text-white/70">
@@ -170,16 +167,16 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full rounded-lg border border-white/12 bg-white/4 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-cyan-300/50"
+            className="min-h-11 w-full rounded-lg border border-white/12 bg-white/4 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-cyan-300/50"
           />
 
           {error && <div className="text-sm text-rose-400">{error}</div>}
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] px-6 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(56,189,248,0.18)] disabled:opacity-60"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] px-6 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(56,189,248,0.18)] disabled:opacity-60 sm:w-auto"
             >
               {loading ? "Signing in..." : "Sign in"}
             </button>
@@ -187,7 +184,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
             {!user && (
               <a
                 href="/signup"
-                className="text-sm text-white/70 hover:text-white"
+                className="inline-flex min-h-11 items-center justify-center text-sm text-white/70 hover:text-white"
               >
                 Create account
               </a>
@@ -198,7 +195,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
             type="button"
             onClick={resendConfirmation}
             disabled={resending}
-            className="text-sm text-cyan-300 transition hover:text-white disabled:opacity-60"
+            className="inline-flex min-h-11 items-center justify-center text-sm text-cyan-300 transition hover:text-white disabled:opacity-60"
           >
             {resending
               ? "Resending confirmation..."

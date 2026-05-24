@@ -21,7 +21,6 @@ export async function getProfessionals(limit = 50): Promise<Professional[]> {
     // Supabase keys missing in the environment; avoid throwing during build.
     // Return an empty list so pages can render during local dev/build.
     // The user should set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
-    // eslint-disable-next-line no-console
     console.warn(
       "Supabase admin client unavailable; returning empty professionals list.",
     );

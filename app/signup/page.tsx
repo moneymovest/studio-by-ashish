@@ -31,11 +31,12 @@ export default function SignupPage() {
 function SignupForm() {
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuthUser();
+  const requestedAccountType = searchParams.get("accountType");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [accountType, setAccountType] = useState<"customer" | "professional">(
-    "customer",
+    requestedAccountType === "professional" ? "professional" : "customer",
   );
   const [serviceCategories, setServiceCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -47,20 +48,8 @@ function SignupForm() {
   useEffect(() => {
     if (user) {
       router.replace("/profile");
-      return;
     }
-
-    const requestedAccountType = searchParams.get("accountType");
-    if (
-      requestedAccountType === "professional" ||
-      requestedAccountType === "customer"
-    ) {
-      setAccountType(requestedAccountType);
-      if (requestedAccountType === "customer") {
-        setServiceCategories([]);
-      }
-    }
-  }, [searchParams]);
+  }, [router, user]);
 
   if (user) {
     return (
@@ -181,10 +170,7 @@ function SignupForm() {
 
       router.replace(nextPath);
     } catch (err: unknown) {
-      const message =
-        err && typeof err === "object" && "message" in err
-          ? (err as any).message
-          : String(err);
+      const message = err instanceof Error ? err.message : String(err);
       setError(message);
     } finally {
       setLoading(false);
@@ -201,7 +187,7 @@ function SignupForm() {
       secondaryLabel="Back"
       secondaryHref="/"
     >
-      <form onSubmit={handleSubmit} className="p-6">
+      <form onSubmit={handleSubmit} className="p-4 sm:p-6">
         <div className="max-w-md space-y-4">
           <label htmlFor="full_name" className="block text-sm text-white/70">
             Full name
@@ -214,7 +200,7 @@ function SignupForm() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full rounded-lg border border-white/12 bg-white/4 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-cyan-300/50"
+            className="min-h-11 w-full rounded-lg border border-white/12 bg-white/4 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-cyan-300/50"
           />
 
           <label htmlFor="email" className="block text-sm text-white/70">
@@ -228,7 +214,7 @@ function SignupForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full rounded-lg border border-white/12 bg-white/4 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-cyan-300/50"
+            className="min-h-11 w-full rounded-lg border border-white/12 bg-white/4 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-cyan-300/50"
           />
 
           <label htmlFor="password" className="block text-sm text-white/70">
@@ -242,7 +228,7 @@ function SignupForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full rounded-lg border border-white/12 bg-white/4 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-cyan-300/50"
+            className="min-h-11 w-full rounded-lg border border-white/12 bg-white/4 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-cyan-300/50"
           />
 
           <label htmlFor="account_type" className="block text-sm text-white/70">
@@ -259,7 +245,7 @@ function SignupForm() {
                 setServiceCategories([]);
               }
             }}
-            className="w-full rounded-lg border border-white/12 bg-white/4 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-cyan-300/50"
+            className="min-h-11 w-full rounded-lg border border-white/12 bg-white/4 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-cyan-300/50"
           >
             <option value="customer">Customer</option>
             <option value="professional">Professional</option>
@@ -277,7 +263,7 @@ function SignupForm() {
                   return (
                     <label
                       key={service}
-                      className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-[#090909]/70 px-4 py-3 text-sm text-white/80 transition hover:border-cyan-300/30"
+                      className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-[#090909]/70 px-4 py-3 text-sm text-white/80 transition hover:border-cyan-300/30"
                     >
                       <input
                         type="checkbox"
@@ -298,16 +284,19 @@ function SignupForm() {
 
           {error && <div className="text-sm text-rose-400">{error}</div>}
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] px-6 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(56,189,248,0.18)] disabled:opacity-60"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] px-6 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(56,189,248,0.18)] disabled:opacity-60 sm:w-auto"
             >
               {loading ? "Creating..." : "Create account"}
             </button>
 
-            <a href="/login" className="text-sm text-white/70 hover:text-white">
+            <a
+              href="/login"
+              className="inline-flex min-h-11 items-center justify-center text-sm text-white/70 hover:text-white"
+            >
               Have an account?
             </a>
           </div>

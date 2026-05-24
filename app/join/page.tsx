@@ -27,11 +27,11 @@ export default function JoinPage() {
 
   if (user) {
     return (
-      <main className="relative isolate overflow-hidden">
+      <main className="relative isolate overflow-x-clip">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.12),transparent_32%),radial-gradient(circle_at_80%_10%,rgba(124,58,237,0.1),transparent_24%)]" />
-        <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-6 sm:px-8 lg:px-10">
+        <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 sm:px-6 lg:px-10">
           <SiteHeader />
-          <div className="flex flex-1 items-center justify-center py-24 text-white/64">
+          <div className="flex flex-1 items-center justify-center py-16 text-white/64 sm:py-24">
             Taking you to your profile.
           </div>
         </div>
@@ -47,20 +47,20 @@ export default function JoinPage() {
   }
 
   return (
-    <main className="relative isolate overflow-hidden">
+    <main className="relative isolate overflow-x-clip">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.12),transparent_32%),radial-gradient(circle_at_80%_10%,rgba(124,58,237,0.1),transparent_24%)]" />
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-6 sm:px-8 lg:px-10">
+      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 sm:px-6 lg:px-10">
         <SiteHeader />
 
-        <section className="grid gap-10 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-24">
+        <section className="grid gap-8 py-12 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-24">
           <div className="space-y-6">
             <p className="text-sm uppercase tracking-[0.32em] text-cyan-300/80">
               Professional onboarding
             </p>
-            <h1 className="max-w-2xl text-5xl font-medium tracking-[-0.06em] text-white sm:text-6xl">
+            <h1 className="max-w-2xl text-[clamp(2.5rem,8vw,4rem)] font-medium tracking-[-0.06em] text-white sm:text-[clamp(3rem,6vw,4.75rem)]">
               Build a profile that feels premium from the first scroll.
             </h1>
-            <p className="max-w-xl text-lg leading-8 text-white/64">
+            <p className="max-w-xl text-base leading-7 text-white/64 sm:text-lg sm:leading-8">
               This entry point is designed for professionals who want a clean,
               polished way to present services and manage client interest.
             </p>
@@ -92,10 +92,10 @@ export default function JoinPage() {
                   key={title}
                   className="rounded-[1.5rem] border border-white/10 bg-white/5 p-4 backdrop-blur-xl"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-cyan-300">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-cyan-300">
                     <Icon className="h-4 w-4" />
                   </div>
-                  <h2 className="mt-4 text-lg font-medium text-white">
+                  <h2 className="mt-4 text-base font-medium text-white sm:text-lg">
                     {title}
                   </h2>
                   <p className="mt-2 text-sm leading-6 text-white/54">{body}</p>
@@ -104,7 +104,7 @@ export default function JoinPage() {
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+          <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5 backdrop-blur-xl sm:p-6">
             <p className="text-sm uppercase tracking-[0.28em] text-white/42">
               Setup checklist
             </p>
@@ -114,7 +114,7 @@ export default function JoinPage() {
                   key={item}
                   className="flex items-center gap-4 rounded-3xl border border-white/10 bg-[#0b0b0b]/80 p-4"
                 >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] text-sm font-semibold text-white">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] text-sm font-semibold text-white">
                     {index + 1}
                   </div>
                   <p className="text-sm leading-6 text-white/72">{item}</p>
@@ -131,27 +131,27 @@ export default function JoinPage() {
               <div className="mt-4 space-y-3 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-sm leading-6 text-cyan-100/90">
                 You are already signed in. Open your profile or log out to
                 switch accounts.
-                <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <Link
                     href="/profile"
-                    className="inline-flex h-12 items-center justify-center rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] px-6 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(56,189,248,0.18)] transition hover:scale-[1.01]"
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] px-6 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(56,189,248,0.18)] transition hover:scale-[1.01] sm:w-auto"
                   >
                     Open profile
                   </Link>
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="inline-flex h-12 items-center justify-center rounded-full border border-white/15 bg-white/4 px-6 text-sm font-semibold text-white/88 transition hover:border-cyan-300/30 hover:bg-white/8"
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-white/15 bg-white/4 px-6 text-sm font-semibold text-white/88 transition hover:border-cyan-300/30 hover:bg-white/8 sm:w-auto"
                   >
                     Logout
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Link
                   href="/signup?accountType=professional"
-                  className="inline-flex h-12 items-center justify-center rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] px-6 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(56,189,248,0.18)] transition hover:scale-[1.01]"
+                  className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] px-6 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(56,189,248,0.18)] transition hover:scale-[1.01] sm:w-auto"
                 >
                   Create professional account
                 </Link>

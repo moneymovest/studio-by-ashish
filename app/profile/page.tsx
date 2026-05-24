@@ -27,9 +27,9 @@ export default function ProfilePage() {
         return;
       }
 
-      const result = await supabase.auth.getSession();
+      const { data } = await supabase.auth.getSession();
       if (!mounted) return;
-      setUser((result as any)?.data?.session?.user ?? null);
+      setUser(data.session?.user ?? null);
       setLoading(false);
     }
 
@@ -51,7 +51,7 @@ export default function ProfilePage() {
         secondaryLabel="Professionals"
         secondaryHref="/professionals"
       >
-        <div className="p-6 text-white/64">Loading...</div>
+        <div className="p-4 text-white/64 sm:p-6">Loading...</div>
       </RouteShell>
     );
   }
@@ -82,8 +82,8 @@ export default function ProfilePage() {
       secondaryLabel="Home"
       secondaryHref="/"
     >
-      <div className="space-y-6 p-6">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+      <div className="space-y-5 p-4 sm:space-y-6 sm:p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-5">
           <p className="text-xs uppercase tracking-[0.28em] text-white/42">
             Account type
           </p>
@@ -95,7 +95,7 @@ export default function ProfilePage() {
         </div>
 
         {(user.user_metadata?.account_type ?? "customer") === "professional" ? (
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-5">
             <p className="text-xs uppercase tracking-[0.28em] text-white/42">
               Services
             </p>
@@ -104,7 +104,7 @@ export default function ProfilePage() {
                 user.user_metadata?.service_categories?.map((service) => (
                   <span
                     key={service}
-                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.24em] text-white/72"
+                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.6875rem] uppercase tracking-[0.24em] text-white/72 sm:text-xs"
                   >
                     {service}
                   </span>
@@ -117,7 +117,7 @@ export default function ProfilePage() {
             </div>
           </div>
         ) : (
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-5">
             <p className="text-xs uppercase tracking-[0.28em] text-white/42">
               Customer hub
             </p>
@@ -128,11 +128,13 @@ export default function ProfilePage() {
           </div>
         )}
 
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-5">
           <p className="text-xs uppercase tracking-[0.28em] text-white/42">
             Email
           </p>
-          <p className="mt-2 text-lg text-white">{user.email}</p>
+          <p className="mt-2 break-all text-base text-white sm:text-lg">
+            {user.email}
+          </p>
         </div>
 
         <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
@@ -144,7 +146,7 @@ export default function ProfilePage() {
           </p>
         </div>
 
-        <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-5 text-sm leading-6 text-cyan-100">
+        <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-sm leading-6 text-cyan-100 sm:p-5">
           Use the account menu in the top right to log out.
         </div>
       </div>

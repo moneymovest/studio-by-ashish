@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { RouteShell } from "@/components/landing/route-shell";
 import { getProfessionalById } from "@/app/actions/professional";
 
@@ -36,15 +37,17 @@ export default async function ProfessionalPage({ params }: Params) {
       secondaryLabel="Back"
       secondaryHref="/professionals"
     >
-      <div className="p-6 text-white">
-        <div className="flex items-center gap-6">
-          <img
+      <div className="p-4 text-white sm:p-6">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+          <Image
             src={pro.avatar_url || "/favicon.ico"}
             alt={pro.full_name ?? "avatar"}
-            className="h-28 w-28 rounded-2xl object-cover"
+            width={112}
+            height={112}
+            className="h-24 w-24 shrink-0 rounded-2xl object-cover sm:h-28 sm:w-28"
           />
-          <div>
-            <h3 className="text-2xl font-medium">{pro.full_name}</h3>
+          <div className="min-w-0">
+            <h3 className="text-xl font-medium sm:text-2xl">{pro.full_name}</h3>
             <p className="mt-2 text-sm text-white/64">{pro.bio}</p>
             <div className="mt-4 flex gap-3 text-sm text-white/72">
               {pro.hourly_rate != null && (
