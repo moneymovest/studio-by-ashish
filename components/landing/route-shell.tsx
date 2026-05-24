@@ -45,8 +45,8 @@ export function RouteShell({
         </header>
 
         <section
-          className={`grid gap-8 py-12 sm:gap-10 sm:py-16 lg:grid-cols-[1.02fr_0.98fr] lg:py-24 ${
-            align === "start" ? "lg:items-start" : "lg:items-center"
+          className={`grid gap-8 py-12 sm:gap-10 sm:py-16 xl:grid-cols-[1.02fr_0.98fr] xl:py-24 ${
+            align === "start" ? "xl:items-start" : "xl:items-center"
           }`}
         >
           <div className="space-y-7">
@@ -85,7 +85,7 @@ export function RouteShell({
           <div
             className={`rounded-[2rem] border border-white/10 bg-white/5 p-5 backdrop-blur-xl sm:p-6 lg:p-7 ${
               panelScrollable
-                ? "lg:max-h-[calc(100vh-9.5rem)] lg:overflow-y-auto lg:pr-5"
+                ? "xl:max-h-[calc(100vh-9.5rem)] xl:overflow-y-auto xl:pr-5"
                 : ""
             }`}
           >
