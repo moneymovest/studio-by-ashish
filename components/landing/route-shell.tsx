@@ -9,6 +9,7 @@ type RouteShellProps = {
   secondaryLabel?: string;
   secondaryHref?: string;
   align?: "center" | "start";
+  panelScrollable?: boolean;
   children: React.ReactNode;
 };
 
@@ -21,12 +22,13 @@ export function RouteShell({
   secondaryLabel,
   secondaryHref,
   align = "center",
+  panelScrollable = false,
   children,
 }: RouteShellProps) {
   return (
     <main className="relative isolate overflow-x-clip">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.12),transparent_32%),radial-gradient(circle_at_80%_10%,rgba(124,58,237,0.1),transparent_24%)]" />
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 sm:px-6 lg:px-10">
+      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 sm:px-6 lg:px-8 xl:px-12">
         <header className="flex flex-col gap-4 border-b border-white/10 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5">
           <Link
             href="/"
@@ -80,7 +82,13 @@ export function RouteShell({
             )}
           </div>
 
-          <div className="rounded-[2rem] border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:p-5 lg:p-6">
+          <div
+            className={`rounded-[2rem] border border-white/10 bg-white/5 p-5 backdrop-blur-xl sm:p-6 lg:p-7 ${
+              panelScrollable
+                ? "lg:max-h-[calc(100vh-9.5rem)] lg:overflow-y-auto lg:pr-5"
+                : ""
+            }`}
+          >
             {children}
           </div>
         </section>

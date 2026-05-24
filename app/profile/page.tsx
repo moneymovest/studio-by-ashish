@@ -85,8 +85,9 @@ export default function ProfilePage() {
       secondaryLabel="Home"
       secondaryHref="/"
       align="start"
+      panelScrollable
     >
-      <div className="space-y-5 p-4 sm:space-y-6 sm:p-6">
+      <div className="space-y-5 pt-2 sm:space-y-6 sm:pt-3">
         <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-5">
           <p className="text-xs uppercase tracking-[0.28em] text-white/42">
             Account type
