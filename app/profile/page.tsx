@@ -72,15 +72,19 @@ export default function ProfilePage() {
     );
   }
 
+  const accountType = user.user_metadata?.account_type ?? "customer";
+  const isProfessional = accountType === "professional";
+
   return (
     <RouteShell
       eyebrow="Account"
       title={user.user_metadata?.full_name || user.email || "Profile"}
       description="Manage your account session and review the identity attached to this profile."
-      primaryLabel="Explore professionals"
-      primaryHref="/professionals"
+      primaryLabel={isProfessional ? undefined : "Explore professionals"}
+      primaryHref={isProfessional ? undefined : "/professionals"}
       secondaryLabel="Home"
       secondaryHref="/"
+      align="start"
     >
       <div className="space-y-5 p-4 sm:space-y-6 sm:p-6">
         <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-5">
@@ -88,13 +92,11 @@ export default function ProfilePage() {
             Account type
           </p>
           <p className="mt-2 text-lg text-white">
-            {(user.user_metadata?.account_type ?? "customer") === "professional"
-              ? "Professional"
-              : "Customer"}
+            {isProfessional ? "Professional" : "Customer"}
           </p>
         </div>
 
-        {(user.user_metadata?.account_type ?? "customer") === "professional" ? (
+        {isProfessional ? (
           <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-5">
             <p className="text-xs uppercase tracking-[0.28em] text-white/42">
               Services
@@ -128,7 +130,7 @@ export default function ProfilePage() {
           </div>
         )}
 
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-5">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-5">
           <p className="text-xs uppercase tracking-[0.28em] text-white/42">
             Email
           </p>
@@ -137,7 +139,7 @@ export default function ProfilePage() {
           </p>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-5">
           <p className="text-xs uppercase tracking-[0.28em] text-white/42">
             Display name
           </p>

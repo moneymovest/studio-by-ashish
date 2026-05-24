@@ -4,10 +4,11 @@ type RouteShellProps = {
   eyebrow: string;
   title: string;
   description: string;
-  primaryLabel: string;
-  primaryHref: string;
-  secondaryLabel: string;
-  secondaryHref: string;
+  primaryLabel?: string;
+  primaryHref?: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+  align?: "center" | "start";
   children: React.ReactNode;
 };
 
@@ -19,6 +20,7 @@ export function RouteShell({
   primaryHref,
   secondaryLabel,
   secondaryHref,
+  align = "center",
   children,
 }: RouteShellProps) {
   return (
@@ -40,7 +42,11 @@ export function RouteShell({
           </Link>
         </header>
 
-        <section className="grid gap-8 py-12 sm:gap-10 sm:py-16 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:py-24">
+        <section
+          className={`grid gap-8 py-12 sm:gap-10 sm:py-16 lg:grid-cols-[1.02fr_0.98fr] lg:py-24 ${
+            align === "start" ? "lg:items-start" : "lg:items-center"
+          }`}
+        >
           <div className="space-y-7">
             <p className="text-sm uppercase tracking-[0.32em] text-cyan-300/80">
               {eyebrow}
@@ -52,20 +58,26 @@ export function RouteShell({
               {description}
             </p>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Link
-                href={primaryHref}
-                className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] px-6 text-sm font-semibold text-white shadow-[0_0_40px_rgba(56,189,248,0.25)] transition hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80 sm:w-auto sm:px-7"
-              >
-                {primaryLabel}
-              </Link>
-              <Link
-                href={secondaryHref}
-                className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-white/15 bg-white/4 px-6 text-sm font-semibold text-white/88 backdrop-blur-xl transition hover:border-cyan-300/30 hover:bg-white/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 sm:w-auto sm:px-7"
-              >
-                {secondaryLabel}
-              </Link>
-            </div>
+            {(primaryLabel || secondaryLabel) && (
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                {primaryLabel && primaryHref ? (
+                  <Link
+                    href={primaryHref}
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[linear-gradient(135deg,#38bdf8,#7c3aed)] px-6 text-sm font-semibold text-white shadow-[0_0_40px_rgba(56,189,248,0.25)] transition hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80 sm:w-auto sm:px-7"
+                  >
+                    {primaryLabel}
+                  </Link>
+                ) : null}
+                {secondaryLabel && secondaryHref ? (
+                  <Link
+                    href={secondaryHref}
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-white/15 bg-white/4 px-6 text-sm font-semibold text-white/88 backdrop-blur-xl transition hover:border-cyan-300/30 hover:bg-white/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 sm:w-auto sm:px-7"
+                  >
+                    {secondaryLabel}
+                  </Link>
+                ) : null}
+              </div>
+            )}
           </div>
 
           <div className="rounded-[2rem] border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:p-5 lg:p-6">
