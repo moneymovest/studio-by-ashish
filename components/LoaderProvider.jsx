@@ -10,8 +10,13 @@ export function LoaderProvider({ children }) {
   );
 
   useEffect(() => {
-    if (typeof document !== "undefined" && document.readyState === "complete") {
+    if (typeof document === "undefined") {
       return;
+    }
+
+    if (document.readyState !== "loading") {
+      const timer = window.setTimeout(() => setReady(true), 0);
+      return () => window.clearTimeout(timer);
     }
 
     const onLoad = () => setReady(true);
