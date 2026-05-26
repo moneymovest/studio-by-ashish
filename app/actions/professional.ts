@@ -210,12 +210,15 @@ export async function getProfessionalById(
 
   const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
   const authUser = authUsers?.users?.find(
-    (user) => user.id === id && user.user_metadata?.account_type === "professional",
+    (user) =>
+      user.id === id && user.user_metadata?.account_type === "professional",
   );
 
   if (!authUser) return null;
 
-  const metadata = authUser.user_metadata as Record<string, unknown> | undefined;
+  const metadata = authUser.user_metadata as
+    | Record<string, unknown>
+    | undefined;
   const { data: profile } = await supabaseAdmin
     .from("profiles")
     .select("id, full_name, avatar_url")

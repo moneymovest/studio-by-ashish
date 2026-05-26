@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Search, SlidersHorizontal, Star, X } from "lucide-react";
 import type { Professional } from "@/app/actions/professional";
+import getSupabaseClient from "@/lib/supabaseClient";
 
 type ProfessionalsBrowserProps = {
   professionals: Professional[];
@@ -26,10 +27,98 @@ function matchesSearch(professional: Professional, query: string) {
 }
 
 export function ProfessionalsBrowser({
-  professionals,
+  professionals: initialProfessionals,
 }: ProfessionalsBrowserProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
+  const [professionals, setProfessionals] = useState(initialProfessionals);
+  const [loading, setLoading] = useState(initialProfessionals.length === 0);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadProfessionals() {
+      const supabase = getSupabaseClient();
+      if (!supabase) {
+        if (mounted) setLoading(false);
+        return;
+      }
+
+      const { data: pros, error } = await supabase
+        .from("professionals")
+        .select("*");
+
+      if (error || !mounted) {
+        if (mounted) setLoading(false);
+        return;
+      }
+
+      const prosList = Array.isArray(pros)
+        ? (pros as Array<Record<string, unknown>>)
+        : [];
+
+      const userIds = prosList
+        .map((professional) => {
+          const value = professional["user_id"];
+          return value === undefined || value === null ? "" : String(value);
+        })
+        .filter(Boolean);
+
+      if (userIds.length === 0) {
+        if (mounted) {
+          setProfessionals([]);
+          setLoading(false);
+        }
+        return;
+      }
+
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, full_name, avatar_url")
+        .in("id", userIds);
+
+      const profileMap: Record<string, Record<string, unknown>> = {};
+      if (profiles) {
+        for (const profile of profiles as Array<Record<string, unknown>>) {
+          profileMap[String(profile["id"])] = profile;
+        }
+      }
+
+      const merged = prosList.map((professional) => {
+        const userId = String(professional["user_id"] ?? "");
+        const profile = profileMap[userId] || {};
+
+        return {
+          id: String(professional["id"] ?? ""),
+          user_id: userId,
+          categories: (professional["categories"] as string[]) || [],
+          bio: (professional["bio"] as string) || undefined,
+          hourly_rate: (professional["hourly_rate"] as number) || undefined,
+          travel_rate_per_km:
+            (professional["travel_rate_per_km"] as number) || undefined,
+          service_radius_km:
+            (professional["service_radius_km"] as number) || undefined,
+          rating: (professional["rating"] as number) || undefined,
+          total_reviews: (professional["total_reviews"] as number) || undefined,
+          full_name: (profile["full_name"] as string) || undefined,
+          avatar_url: (profile["avatar_url"] as string) || undefined,
+        } satisfies Professional;
+      });
+
+      if (mounted) {
+        if (merged.length > 0) {
+          setProfessionals(merged);
+        }
+        setLoading(false);
+      }
+    }
+
+    loadProfessionals();
+
+    return () => {
+      mounted = false;
+    };
+  }, [initialProfessionals]);
 
   const categories = useMemo(
     () =>
@@ -81,7 +170,7 @@ export function ProfessionalsBrowser({
 
           <div className="flex flex-wrap items-center gap-2 text-xs text-white/50">
             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
-              {filteredProfessionals.length} shown
+              {loading ? "Loading..." : `${filteredProfessionals.length} shown`}
             </span>
             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
               {professionals.length} total
@@ -163,7 +252,7 @@ export function ProfessionalsBrowser({
         )}
       </div>
 
-      {filteredProfessionals.length === 0 && (
+      {!loading && filteredProfessionals.length === 0 && (
         <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white/64">
           <p className="text-base text-white/80">
             No professionals match{" "}
@@ -173,6 +262,12 @@ export function ProfessionalsBrowser({
             Try a partial name, a service like photographer, or clear the
             category filter to widen the results.
           </p>
+        </div>
+      )}
+
+      {loading && (
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white/64">
+          Loading professionals...
         </div>
       )}
 
