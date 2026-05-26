@@ -42,9 +42,9 @@ export async function getProfessionals(
     return [];
   }
 
-  if (!pros || (pros as unknown[]).length === 0) return [];
-
-  const prosList = pros as Array<Record<string, unknown>>;
+  const prosList = Array.isArray(pros)
+    ? (pros as Array<Record<string, unknown>>)
+    : [];
 
   const userIds = prosList
     .map((p) => {
@@ -105,6 +105,14 @@ export async function getProfessionals(
   return prosList.map((p) => {
     const uid = String(p["user_id"] ?? "");
     const pr = profileMap[uid] || {};
+    const mergedFullName =
+      (pr["full_name"] as string | undefined) ||
+      (p["full_name"] as string | undefined) ||
+      undefined;
+    const mergedAvatarUrl =
+      (pr["avatar_url"] as string | undefined) ||
+      (p["avatar_url"] as string | undefined) ||
+      undefined;
 
     return {
       id: String(p["id"] ?? ""),
@@ -116,8 +124,8 @@ export async function getProfessionals(
       service_radius_km: (p["service_radius_km"] as number) || undefined,
       rating: (p["rating"] as number) || undefined,
       total_reviews: (p["total_reviews"] as number) || undefined,
-      full_name: (pr["full_name"] as string) || undefined,
-      avatar_url: (pr["avatar_url"] as string) || undefined,
+      full_name: mergedFullName,
+      avatar_url: mergedAvatarUrl,
     };
   });
 }
