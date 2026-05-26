@@ -30,10 +30,20 @@ export function useAuthUser() {
     }
 
     const init = async () => {
-      const res = await supabase.auth.getSession();
-      if (!mounted) return;
-      setUser(res.data.session?.user ?? null);
-      setLoading(false);
+      try {
+        const res = await supabase.auth.getSession();
+        if (!mounted) return;
+        setUser(res.data.session?.user ?? null);
+      } catch (err) {
+        // Ensure we don't leave the UI stuck if the auth call fails.
+        // Log for diagnostics and clear any partial state.
+        // eslint-disable-next-line no-console
+        console.error("supabase.getSession error", err);
+        if (!mounted) return;
+        setUser(null);
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
 
     init();
@@ -48,7 +58,11 @@ export function useAuthUser() {
 
     return () => {
       mounted = false;
-      subscription.subscription.unsubscribe();
+      try {
+        subscription?.subscription?.unsubscribe();
+      } catch {
+        // ignore if unsubscribe fails
+      }
     };
   }, []);
 
