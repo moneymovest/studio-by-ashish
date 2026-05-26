@@ -8,6 +8,8 @@ export type AuthUser = {
   user_metadata?: {
     full_name?: string;
     avatar_url?: string;
+    account_type?: "customer" | "professional";
+    service_categories?: string[];
   };
 } | null;
 

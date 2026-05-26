@@ -30,6 +30,7 @@ const featureCards = [
 
 export function Hero() {
   const { user, loading } = useAuthUser();
+  const isProfessional = user?.user_metadata?.account_type === "professional";
 
   return (
     <section
@@ -79,10 +80,10 @@ export function Hero() {
             whileTap={{ scale: 0.98 }}
           >
             <Link
-              href="/professionals"
+              href={isProfessional ? "/profile" : "/professionals"}
               className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#06b6d4,#7c3aed)] px-6 text-sm font-semibold text-white shadow-[0_0_40px_rgba(56,189,248,0.24)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80 sm:w-auto sm:px-7"
             >
-              Find Professionals
+              {isProfessional ? "Go to dashboard" : "Find Professionals"}
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </motion.div>
