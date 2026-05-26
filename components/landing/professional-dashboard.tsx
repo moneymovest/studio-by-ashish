@@ -72,7 +72,9 @@ export function ProfessionalDashboard({ user }: ProfessionalDashboardProps) {
   const [professional, setProfessional] = useState<Professional | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState("Ready to update your dashboard.");
+  const [saveMessage, setSaveMessage] = useState(
+    "Ready to update your dashboard.",
+  );
   const [fullName, setFullName] = useState(
     user.user_metadata?.full_name || user.email || "Professional",
   );
@@ -97,82 +99,187 @@ export function ProfessionalDashboard({ user }: ProfessionalDashboardProps) {
       return [];
     }
   });
+  const [diagSource, setDiagSource] = useState<string | null>(null);
+  const [diagError, setDiagError] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
 
     async function loadDashboardData() {
+      const TIMEOUT = 8000; // ms
+
+      const fetchWithTimeout = (p: Promise<any>, ms: number) =>
+        Promise.race([
+          p,
+          new Promise((_resolve, reject) =>
+            setTimeout(() => reject(new Error("timeout")), ms),
+          ),
+        ]) as Promise<any>;
+
       try {
         const supabase = getSupabaseClient();
-        if (!supabase) {
-          return;
+
+        // Try the client-side supabase path with a timeout so we don't hang.
+        if (supabase) {
+          try {
+            const [{ data: profile }, { data: professionalRow }] =
+              await fetchWithTimeout(
+                Promise.all([
+                  supabase
+                    .from("profiles")
+                    .select("id, full_name, avatar_url")
+                    .eq("id", user.id)
+                    .limit(1)
+                    .maybeSingle(),
+                  supabase
+                    .from("professionals")
+                    .select("*")
+                    .eq("user_id", user.id)
+                    .limit(1)
+                    .maybeSingle(),
+                ]),
+                TIMEOUT,
+              );
+
+            if (!mounted) return;
+
+            setDiagSource("client");
+            setDiagError(null);
+
+            setFullName(
+              (profile?.["full_name"] as string | undefined) ||
+                user.user_metadata?.full_name ||
+                user.email ||
+                "Professional",
+            );
+            setAvatarUrl(
+              (profile?.["avatar_url"] as string | undefined) ||
+                user.user_metadata?.avatar_url ||
+                "/favicon.ico",
+            );
+            setBio(
+              (professionalRow?.["bio"] as string) ||
+                user.user_metadata?.bio ||
+                "",
+            );
+            setServices(
+              (professionalRow?.["categories"] as string[]) ||
+                user.user_metadata?.service_categories ||
+                [],
+            );
+            setProfessional(
+              professionalRow
+                ? {
+                    id: String(professionalRow["id"] ?? ""),
+                    user_id: String(professionalRow["user_id"] ?? user.id),
+                    categories:
+                      (professionalRow["categories"] as string[]) ||
+                      user.user_metadata?.service_categories ||
+                      [],
+                    bio: (professionalRow["bio"] as string) || undefined,
+                    hourly_rate:
+                      (professionalRow["hourly_rate"] as number) || undefined,
+                    travel_rate_per_km:
+                      (professionalRow["travel_rate_per_km"] as number) ||
+                      undefined,
+                    service_radius_km:
+                      (professionalRow["service_radius_km"] as number) ||
+                      undefined,
+                    rating: (professionalRow["rating"] as number) || undefined,
+                    total_reviews:
+                      (professionalRow["total_reviews"] as number) || undefined,
+                    full_name: (profile?.["full_name"] as string) || undefined,
+                    avatar_url:
+                      (profile?.["avatar_url"] as string) || undefined,
+                  }
+                : null,
+            );
+
+            return; // success via client supabase
+          } catch (err: any) {
+            // client supabase failed or timed out — fall through to server fallback
+            // eslint-disable-next-line no-console
+            console.warn("Client supabase fetch failed, falling back", err);
+            setDiagSource("client-failed");
+            setDiagError(String(err?.message ?? err));
+          }
         }
 
-        const [{ data: profile }, { data: professionalRow }] =
-          await Promise.all([
-            supabase
-              .from("profiles")
-              .select("id, full_name, avatar_url")
-              .eq("id", user.id)
-              .limit(1)
-              .maybeSingle(),
-            supabase
-              .from("professionals")
-              .select("*")
-              .eq("user_id", user.id)
-              .limit(1)
-              .maybeSingle(),
-          ]);
+        // Server-side fallback: call our API route which uses the admin client.
+        try {
+          const res = await fetch(
+            `/api/profiles?userId=${encodeURIComponent(user.id)}`,
+            { cache: "no-store" },
+          );
 
-        if (!mounted) return;
+          if (res.ok) {
+            const payload = await res.json().catch(() => ({}));
+            const profile = payload.profile as any;
+            const professionalRow = payload.professional as any;
 
-        setFullName(
-          (profile?.["full_name"] as string | undefined) ||
-            user.user_metadata?.full_name ||
-            user.email ||
-            "Professional",
-        );
-        setAvatarUrl(
-          (profile?.["avatar_url"] as string | undefined) ||
-            user.user_metadata?.avatar_url ||
-            "/favicon.ico",
-        );
-        setBio(
-          (professionalRow?.["bio"] as string) ||
-            user.user_metadata?.bio ||
-            "",
-        );
-        setServices(
-          (professionalRow?.["categories"] as string[]) ||
-            user.user_metadata?.service_categories ||
-            [],
-        );
-        setProfessional(
-          professionalRow
-            ? {
-                id: String(professionalRow["id"] ?? ""),
-                user_id: String(professionalRow["user_id"] ?? user.id),
-                categories:
-                  (professionalRow["categories"] as string[]) ||
-                  user.user_metadata?.service_categories ||
-                  [],
-                bio: (professionalRow["bio"] as string) || undefined,
-                hourly_rate:
-                  (professionalRow["hourly_rate"] as number) || undefined,
-                travel_rate_per_km:
-                  (professionalRow["travel_rate_per_km"] as number) ||
-                  undefined,
-                service_radius_km:
-                  (professionalRow["service_radius_km"] as number) || undefined,
-                rating: (professionalRow["rating"] as number) || undefined,
-                total_reviews:
-                  (professionalRow["total_reviews"] as number) || undefined,
-                full_name: (profile?.["full_name"] as string) || undefined,
-                avatar_url: (profile?.["avatar_url"] as string) || undefined,
-              }
-            : null,
-        );
-      } catch {
+            if (!mounted) return;
+
+            setDiagSource("server");
+            setDiagError(null);
+
+            setFullName(
+              (profile?.["full_name"] as string | undefined) ||
+                user.user_metadata?.full_name ||
+                user.email ||
+                "Professional",
+            );
+            setAvatarUrl(
+              (profile?.["avatar_url"] as string | undefined) ||
+                user.user_metadata?.avatar_url ||
+                "/favicon.ico",
+            );
+            setBio(
+              (professionalRow?.["bio"] as string) ||
+                user.user_metadata?.bio ||
+                "",
+            );
+            setServices(
+              (professionalRow?.["categories"] as string[]) ||
+                user.user_metadata?.service_categories ||
+                [],
+            );
+            setProfessional(
+              professionalRow
+                ? {
+                    id: String(professionalRow["id"] ?? ""),
+                    user_id: String(professionalRow["user_id"] ?? user.id),
+                    categories:
+                      (professionalRow["categories"] as string[]) ||
+                      user.user_metadata?.service_categories ||
+                      [],
+                    bio: (professionalRow["bio"] as string) || undefined,
+                    hourly_rate:
+                      (professionalRow["hourly_rate"] as number) || undefined,
+                    travel_rate_per_km:
+                      (professionalRow["travel_rate_per_km"] as number) ||
+                      undefined,
+                    service_radius_km:
+                      (professionalRow["service_radius_km"] as number) ||
+                      undefined,
+                    rating: (professionalRow["rating"] as number) || undefined,
+                    total_reviews:
+                      (professionalRow["total_reviews"] as number) || undefined,
+                    full_name: (profile?.["full_name"] as string) || undefined,
+                    avatar_url:
+                      (profile?.["avatar_url"] as string) || undefined,
+                  }
+                : null,
+            );
+            return;
+          }
+        } catch (err: any) {
+          // ignore and let finally clear loading state
+          // eslint-disable-next-line no-console
+          console.warn("Server fallback failed", err);
+          setDiagSource("server-failed");
+          setDiagError(String(err?.message ?? err));
+        }
+      } catch (err) {
         if (mounted) {
           setProfessional(null);
         }
@@ -293,7 +400,8 @@ export function ProfessionalDashboard({ user }: ProfessionalDashboardProps) {
         error?: string;
       };
       setSaveMessage(
-        payload.error || "Saved locally, but the profile update endpoint failed.",
+        payload.error ||
+          "Saved locally, but the profile update endpoint failed.",
       );
       setSaving(false);
       return;
@@ -333,6 +441,14 @@ export function ProfessionalDashboard({ user }: ProfessionalDashboardProps) {
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.14),transparent_32%),radial-gradient(circle_at_80%_10%,rgba(124,58,237,0.12),transparent_24%)]" />
       <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 sm:px-6 lg:px-10">
         <SiteHeader />
+        {diagSource ? (
+          <div className="mx-auto mt-4 w-full max-w-7xl px-4 sm:px-6 lg:px-10">
+            <div className="rounded-lg border border-yellow-400/10 bg-yellow-500/6 p-2 text-sm text-yellow-200">
+              <strong>Diag:</strong> {diagSource}
+              {diagError ? ` — ${diagError}` : ""}
+            </div>
+          </div>
+        ) : null}
 
         <section className="grid gap-8 py-12 sm:py-16 lg:grid-cols-[1.14fr_0.86fr] lg:items-start lg:py-24">
           <div className="space-y-6">
@@ -369,7 +485,9 @@ export function ProfessionalDashboard({ user }: ProfessionalDashboardProps) {
                       title="Upload profile photo"
                       className="hidden"
                       onChange={(event) => {
-                        void handleAvatarUpload(event.target.files?.[0] ?? null);
+                        void handleAvatarUpload(
+                          event.target.files?.[0] ?? null,
+                        );
                       }}
                     />
                   </div>
@@ -742,7 +860,9 @@ export function ProfessionalDashboard({ user }: ProfessionalDashboardProps) {
                       type="button"
                       onClick={() =>
                         setMediaItems((current) =>
-                          current.filter((_, currentIndex) => currentIndex !== index),
+                          current.filter(
+                            (_, currentIndex) => currentIndex !== index,
+                          ),
                         )
                       }
                       className="absolute right-3 top-3 rounded-full border border-white/12 bg-black/40 px-3 py-1 text-xs text-white/90 opacity-0 backdrop-blur-xl transition group-hover:opacity-100"
@@ -756,7 +876,8 @@ export function ProfessionalDashboard({ user }: ProfessionalDashboardProps) {
               <div className="mt-5 rounded-[1.5rem] border border-dashed border-white/15 bg-[#0b0b0b]/80 p-6 text-sm leading-6 text-white/60">
                 Drag in media, client photos, or portfolio stills to start
                 building a visual gallery. Your uploaded previews will appear
-                here first so you can curate them before making the profile live.
+                here first so you can curate them before making the profile
+                live.
               </div>
             )}
           </div>
@@ -793,10 +914,10 @@ export function ProfessionalDashboard({ user }: ProfessionalDashboardProps) {
             </div>
 
             <div className="mt-5 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-sm leading-6 text-cyan-100/90">
-              This dashboard is intentionally built around the work a photographer,
-              videographer, or editor needs most: profile editing, media uploads,
-              bookings, and ratings. You can keep extending it with inbox,
-              pricing, and availability controls next.
+              This dashboard is intentionally built around the work a
+              photographer, videographer, or editor needs most: profile editing,
+              media uploads, bookings, and ratings. You can keep extending it
+              with inbox, pricing, and availability controls next.
             </div>
           </div>
         </section>
