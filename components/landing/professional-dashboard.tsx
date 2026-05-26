@@ -102,75 +102,85 @@ export function ProfessionalDashboard({ user }: ProfessionalDashboardProps) {
     let mounted = true;
 
     async function loadDashboardData() {
-      const supabase = getSupabaseClient();
-      if (!supabase) {
-        if (mounted) setLoadingProfile(false);
-        return;
+      try {
+        const supabase = getSupabaseClient();
+        if (!supabase) {
+          return;
+        }
+
+        const [{ data: profile }, { data: professionalRow }] =
+          await Promise.all([
+            supabase
+              .from("profiles")
+              .select("id, full_name, avatar_url")
+              .eq("id", user.id)
+              .limit(1)
+              .maybeSingle(),
+            supabase
+              .from("professionals")
+              .select("*")
+              .eq("user_id", user.id)
+              .limit(1)
+              .maybeSingle(),
+          ]);
+
+        if (!mounted) return;
+
+        setFullName(
+          (profile?.["full_name"] as string | undefined) ||
+            user.user_metadata?.full_name ||
+            user.email ||
+            "Professional",
+        );
+        setAvatarUrl(
+          (profile?.["avatar_url"] as string | undefined) ||
+            user.user_metadata?.avatar_url ||
+            "/favicon.ico",
+        );
+        setBio(
+          (professionalRow?.["bio"] as string) ||
+            user.user_metadata?.bio ||
+            "",
+        );
+        setServices(
+          (professionalRow?.["categories"] as string[]) ||
+            user.user_metadata?.service_categories ||
+            [],
+        );
+        setProfessional(
+          professionalRow
+            ? {
+                id: String(professionalRow["id"] ?? ""),
+                user_id: String(professionalRow["user_id"] ?? user.id),
+                categories:
+                  (professionalRow["categories"] as string[]) ||
+                  user.user_metadata?.service_categories ||
+                  [],
+                bio: (professionalRow["bio"] as string) || undefined,
+                hourly_rate:
+                  (professionalRow["hourly_rate"] as number) || undefined,
+                travel_rate_per_km:
+                  (professionalRow["travel_rate_per_km"] as number) ||
+                  undefined,
+                service_radius_km:
+                  (professionalRow["service_radius_km"] as number) || undefined,
+                rating: (professionalRow["rating"] as number) || undefined,
+                total_reviews:
+                  (professionalRow["total_reviews"] as number) || undefined,
+                full_name: (profile?.["full_name"] as string) || undefined,
+                avatar_url: (profile?.["avatar_url"] as string) || undefined,
+              }
+            : null,
+        );
+      } catch {
+        if (mounted) {
+          setProfessional(null);
+        }
+      } finally {
+        if (mounted) {
+          setLoadingProfile(false);
+        }
       }
-
-      const [{ data: profile }, { data: professionalRow }] = await Promise.all([
-        supabase
-          .from("profiles")
-          .select("id, full_name, avatar_url")
-          .eq("id", user.id)
-          .limit(1)
-          .maybeSingle(),
-        supabase
-          .from("professionals")
-          .select("*")
-          .eq("user_id", user.id)
-          .limit(1)
-          .maybeSingle(),
-      ]);
-
-      if (!mounted) return;
-
-      setFullName(
-        (profile?.["full_name"] as string | undefined) ||
-          user.user_metadata?.full_name ||
-          user.email ||
-          "Professional",
-      );
-      setAvatarUrl(
-        (profile?.["avatar_url"] as string | undefined) ||
-          user.user_metadata?.avatar_url ||
-          "/favicon.ico",
-      );
-      setBio(
-        (professionalRow?.["bio"] as string) ||
-          user.user_metadata?.bio ||
-          "",
-      );
-      setServices(
-        (professionalRow?.["categories"] as string[]) ||
-          user.user_metadata?.service_categories ||
-          [],
-      );
-      setProfessional(
-        professionalRow
-          ? {
-              id: String(professionalRow["id"] ?? ""),
-              user_id: String(professionalRow["user_id"] ?? user.id),
-              categories:
-                (professionalRow["categories"] as string[]) ||
-                user.user_metadata?.service_categories ||
-                [],
-              bio: (professionalRow["bio"] as string) || undefined,
-              hourly_rate:
-                (professionalRow["hourly_rate"] as number) || undefined,
-              travel_rate_per_km:
-                (professionalRow["travel_rate_per_km"] as number) || undefined,
-              service_radius_km:
-                (professionalRow["service_radius_km"] as number) || undefined,
-              rating: (professionalRow["rating"] as number) || undefined,
-              total_reviews:
-                (professionalRow["total_reviews"] as number) || undefined,
-              full_name: (profile?.["full_name"] as string) || undefined,
-              avatar_url: (profile?.["avatar_url"] as string) || undefined,
-            }
-          : null,
-      );
-      setLoadingProfile(false);
     }
 
     loadDashboardData();
