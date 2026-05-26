@@ -44,66 +44,79 @@ export function ProfessionalsBrowser({
         return;
       }
 
-      const { data: pros, error } = await supabase
-        .from("professionals")
-        .select("*");
+      const [{ data: profiles }, { data: pros, error }] = await Promise.all([
+        supabase.from("profiles").select("id, full_name, avatar_url"),
+        supabase.from("professionals").select("*"),
+      ]);
 
       if (error || !mounted) {
         if (mounted) setLoading(false);
         return;
       }
 
+      const profileList = Array.isArray(profiles)
+        ? (profiles as Array<Record<string, unknown>>)
+        : [];
+
       const prosList = Array.isArray(pros)
         ? (pros as Array<Record<string, unknown>>)
         : [];
 
-      const userIds = prosList
-        .map((professional) => {
-          const value = professional["user_id"];
-          return value === undefined || value === null ? "" : String(value);
-        })
-        .filter(Boolean);
-
-      if (userIds.length === 0) {
-        if (mounted) {
-          setProfessionals([]);
-          setLoading(false);
-        }
-        return;
-      }
-
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url")
-        .in("id", userIds);
-
       const profileMap: Record<string, Record<string, unknown>> = {};
-      if (profiles) {
-        for (const profile of profiles as Array<Record<string, unknown>>) {
-          profileMap[String(profile["id"])] = profile;
+      for (const profile of profileList) {
+        const profileId = String(profile["id"] ?? "");
+        if (profileId) {
+          profileMap[profileId] = profile;
         }
       }
 
-      const merged = prosList.map((professional) => {
-        const userId = String(professional["user_id"] ?? "");
-        const profile = profileMap[userId] || {};
+      const mergedById = new Map<string, Professional>();
 
-        return {
-          id: String(professional["id"] ?? ""),
-          user_id: userId,
-          categories: (professional["categories"] as string[]) || [],
-          bio: (professional["bio"] as string) || undefined,
-          hourly_rate: (professional["hourly_rate"] as number) || undefined,
-          travel_rate_per_km:
-            (professional["travel_rate_per_km"] as number) || undefined,
-          service_radius_km:
-            (professional["service_radius_km"] as number) || undefined,
-          rating: (professional["rating"] as number) || undefined,
-          total_reviews: (professional["total_reviews"] as number) || undefined,
+      for (const profile of profileList) {
+        const profileId = String(profile["id"] ?? "");
+        if (!profileId) continue;
+
+        mergedById.set(profileId, {
+          id: profileId,
+          user_id: profileId,
+          categories: [],
           full_name: (profile["full_name"] as string) || undefined,
           avatar_url: (profile["avatar_url"] as string) || undefined,
-        } satisfies Professional;
-      });
+        });
+      }
+
+      for (const professional of prosList) {
+        const professionalId = String(professional["id"] ?? "");
+        const userId = String(professional["user_id"] ?? professionalId);
+        const existing = mergedById.get(userId) || mergedById.get(professionalId);
+        mergedById.set(userId || professionalId, {
+          id: professionalId || userId,
+          user_id: userId,
+          categories: (professional["categories"] as string[]) || [],
+          bio: (professional["bio"] as string) || existing?.bio,
+          hourly_rate:
+            (professional["hourly_rate"] as number) ?? existing?.hourly_rate,
+          travel_rate_per_km:
+            (professional["travel_rate_per_km"] as number) ??
+            existing?.travel_rate_per_km,
+          service_radius_km:
+            (professional["service_radius_km"] as number) ??
+            existing?.service_radius_km,
+          rating: (professional["rating"] as number) ?? existing?.rating,
+          total_reviews:
+            (professional["total_reviews"] as number) ?? existing?.total_reviews,
+          full_name:
+            (profileMap[userId]?.["full_name"] as string | undefined) ||
+            existing?.full_name ||
+            undefined,
+          avatar_url:
+            (profileMap[userId]?.["avatar_url"] as string | undefined) ||
+            existing?.avatar_url ||
+            undefined,
+        });
+      }
+
+      const merged = Array.from(mergedById.values());
 
       if (mounted) {
         if (merged.length > 0) {

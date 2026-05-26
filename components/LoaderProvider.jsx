@@ -5,9 +5,7 @@ import FramebookLoader from "@/components/FramebookLoader";
 
 export function LoaderProvider({ children }) {
   const [loading, setLoading] = useState(true);
-  const [ready, setReady] = useState(
-    () => typeof document !== "undefined" && document.readyState === "complete",
-  );
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (typeof document === "undefined") {
