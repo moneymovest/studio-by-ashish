@@ -18,7 +18,7 @@ export default async function ProfessionalsPage() {
             <p className="text-sm uppercase tracking-[0.32em] text-cyan-300/80">
               Discover talent
             </p>
-            <h1 className="max-w-2xl text-[clamp(2rem,6.5vw,3.25rem)] font-medium tracking-[-0.06em] text-white sm:text-[clamp(2.35rem,5vw,3.9rem)] lg:text-[clamp(2.6rem,4.2vw,4.15rem)]">
+            <h1 className="max-w-2xl text-[clamp(1.8rem,5.6vw,2.9rem)] font-medium tracking-[-0.06em] text-white sm:text-[clamp(2.1rem,4.4vw,3.45rem)] lg:text-[clamp(2.35rem,3.8vw,3.75rem)]">
               Find creative professionals that look as premium as the clients
               they serve.
             </h1>

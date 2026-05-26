@@ -102,9 +102,33 @@ export async function getProfessionals(
     });
   }
 
+  const allUserIds = Array.from(
+    new Set(
+      prosList
+        .map((professional) => {
+          const v = professional["user_id"];
+          return v === undefined || v === null ? "" : String(v);
+        })
+        .filter(Boolean),
+    ),
+  );
+
+  const { data: allProfiles } = await supabaseAdmin
+    .from("profiles")
+    .select("id, full_name, avatar_url")
+    .in("id", allUserIds);
+
+  const mergedProfileMap: Record<string, Record<string, unknown>> = {};
+  if (allProfiles) {
+    for (const pr of allProfiles as Array<Record<string, unknown>>) {
+      const id = pr["id"] as string;
+      mergedProfileMap[id] = pr;
+    }
+  }
+
   return prosList.map((p) => {
     const uid = String(p["user_id"] ?? "");
-    const pr = profileMap[uid] || {};
+    const pr = mergedProfileMap[uid] || profileMap[uid] || {};
     const mergedFullName =
       (pr["full_name"] as string | undefined) ||
       (p["full_name"] as string | undefined) ||
@@ -136,35 +160,88 @@ export async function getProfessionalById(
   const supabaseAdmin = getSupabaseAdmin();
   if (!supabaseAdmin) return null;
 
-  const { data: pro, error } = await supabaseAdmin
+  const { data: proById, error: proByIdError } = await supabaseAdmin
     .from("professionals")
     .select("*")
     .eq("id", id)
     .limit(1)
     .maybeSingle();
 
-  if (error || !pro) return null;
+  let pro = proById;
 
-  const uid = String(pro["user_id"] ?? "");
+  if (proByIdError) return null;
 
+  if (!pro) {
+    const { data: proByUserId, error: proByUserIdError } = await supabaseAdmin
+      .from("professionals")
+      .select("*")
+      .eq("user_id", id)
+      .limit(1)
+      .maybeSingle();
+
+    if (proByUserIdError) return null;
+    pro = proByUserId;
+  }
+
+  if (pro) {
+    const uid = String(pro["user_id"] ?? "");
+
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("id, full_name, avatar_url")
+      .eq("id", uid)
+      .limit(1)
+      .maybeSingle();
+
+    return {
+      id: String(pro["id"] ?? ""),
+      user_id: uid,
+      categories: (pro["categories"] as string[]) || [],
+      bio: (pro["bio"] as string) || undefined,
+      hourly_rate: (pro["hourly_rate"] as number) || undefined,
+      travel_rate_per_km: (pro["travel_rate_per_km"] as number) || undefined,
+      service_radius_km: (pro["service_radius_km"] as number) || undefined,
+      rating: (pro["rating"] as number) || undefined,
+      total_reviews: (pro["total_reviews"] as number) || undefined,
+      full_name: (profile?.["full_name"] as string) || undefined,
+      avatar_url: (profile?.["avatar_url"] as string) || undefined,
+    };
+  }
+
+  const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
+  const authUser = authUsers?.users?.find(
+    (user) => user.id === id && user.user_metadata?.account_type === "professional",
+  );
+
+  if (!authUser) return null;
+
+  const metadata = authUser.user_metadata as Record<string, unknown> | undefined;
   const { data: profile } = await supabaseAdmin
     .from("profiles")
     .select("id, full_name, avatar_url")
-    .eq("id", uid)
+    .eq("id", id)
     .limit(1)
     .maybeSingle();
 
   return {
-    id: String(pro["id"] ?? ""),
-    user_id: uid,
-    categories: (pro["categories"] as string[]) || [],
-    bio: (pro["bio"] as string) || undefined,
-    hourly_rate: (pro["hourly_rate"] as number) || undefined,
-    travel_rate_per_km: (pro["travel_rate_per_km"] as number) || undefined,
-    service_radius_km: (pro["service_radius_km"] as number) || undefined,
-    rating: (pro["rating"] as number) || undefined,
-    total_reviews: (pro["total_reviews"] as number) || undefined,
-    full_name: (profile?.["full_name"] as string) || undefined,
-    avatar_url: (profile?.["avatar_url"] as string) || undefined,
+    id,
+    user_id: id,
+    categories: Array.isArray(metadata?.service_categories)
+      ? (metadata?.service_categories as string[])
+      : [],
+    bio: (metadata?.bio as string) || undefined,
+    hourly_rate: undefined,
+    travel_rate_per_km: undefined,
+    service_radius_km: undefined,
+    rating: undefined,
+    total_reviews: undefined,
+    full_name:
+      (profile?.["full_name"] as string | undefined) ||
+      (metadata?.full_name as string | undefined) ||
+      undefined,
+    avatar_url:
+      (profile?.["avatar_url"] as string | undefined) ||
+      (metadata?.avatar_url as string | undefined) ||
+      undefined,
   };
 }
