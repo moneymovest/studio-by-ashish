@@ -144,6 +144,8 @@ function SignupForm() {
           body: JSON.stringify({
             userId,
             fullName: name,
+            accountType,
+            serviceCategories,
           }),
         });
 

@@ -15,7 +15,9 @@ export type Professional = {
   avatar_url?: string;
 };
 
-export async function getProfessionals(limit = 50): Promise<Professional[]> {
+export async function getProfessionals(
+  limit?: number,
+): Promise<Professional[]> {
   const supabaseAdmin = getSupabaseAdmin();
   if (!supabaseAdmin) {
     // Supabase keys missing in the environment; avoid throwing during build.
@@ -27,10 +29,13 @@ export async function getProfessionals(limit = 50): Promise<Professional[]> {
     return [];
   }
 
-  const { data: pros, error } = await supabaseAdmin
-    .from("professionals")
-    .select("*")
-    .limit(limit);
+  let query = supabaseAdmin.from("professionals").select("*");
+
+  if (limit != null) {
+    query = query.limit(limit);
+  }
+
+  const { data: pros, error } = await query;
 
   if (error) {
     console.error("Error fetching professionals:", error);
@@ -59,6 +64,42 @@ export async function getProfessionals(limit = 50): Promise<Professional[]> {
       const id = pr["id"] as string;
       profileMap[id] = pr;
     }
+  }
+
+  const knownUserIds = new Set(userIds);
+  const authUsersResult = await supabaseAdmin.auth.admin.listUsers();
+  const authUsers = authUsersResult.data?.users ?? [];
+
+  for (const user of authUsers) {
+    const userId = user.id;
+    const metadata = user.user_metadata as Record<string, unknown> | undefined;
+    const accountType = metadata?.account_type;
+
+    if (accountType !== "professional" || knownUserIds.has(userId)) {
+      continue;
+    }
+
+    prosList.push({
+      id: userId,
+      user_id: userId,
+      categories: Array.isArray(metadata?.service_categories)
+        ? (metadata?.service_categories as string[])
+        : [],
+      bio: undefined,
+      hourly_rate: undefined,
+      travel_rate_per_km: undefined,
+      service_radius_km: undefined,
+      rating: undefined,
+      total_reviews: undefined,
+      full_name:
+        (profileMap[userId]?.["full_name"] as string | undefined) ||
+        (metadata?.full_name as string | undefined) ||
+        undefined,
+      avatar_url:
+        (profileMap[userId]?.["avatar_url"] as string | undefined) ||
+        (metadata?.avatar_url as string | undefined) ||
+        undefined,
+    });
   }
 
   return prosList.map((p) => {

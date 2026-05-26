@@ -5,7 +5,7 @@ import { ProfessionalsBrowser } from "@/components/landing/professionals-browser
 export const dynamic = "force-dynamic";
 
 export default async function ProfessionalsPage() {
-  const professionals: Professional[] = await getProfessionals(50);
+  const professionals: Professional[] = await getProfessionals();
 
   return (
     <main className="relative isolate overflow-x-clip">

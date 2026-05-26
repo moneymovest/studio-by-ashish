@@ -165,7 +165,14 @@ export function ProfessionalsBrowser({
 
       {filteredProfessionals.length === 0 && (
         <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white/64">
-          No professionals match the current search.
+          <p className="text-base text-white/80">
+            No professionals match{" "}
+            {query.trim() ? `“${query.trim()}”` : "the current filters"}.
+          </p>
+          <p className="mt-2 text-sm leading-6 text-white/56">
+            Try a partial name, a service like photographer, or clear the
+            category filter to widen the results.
+          </p>
         </div>
       )}
 
