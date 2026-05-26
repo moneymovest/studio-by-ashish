@@ -101,7 +101,7 @@ export default function ProfilePage() {
   return (
     <RouteShell
       eyebrow="Account"
-      title={user.user_metadata?.full_name || user.email || "Profile"}
+      title={currentUser.user_metadata?.full_name || currentUser.email || "Profile"}
       description="Manage your account session and review the identity attached to this profile."
       primaryLabel={isProfessional ? undefined : "Explore professionals"}
       primaryHref={isProfessional ? undefined : "/professionals"}
@@ -126,8 +126,8 @@ export default function ProfilePage() {
               Services
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {(user.user_metadata?.service_categories ?? []).length > 0 ? (
-                user.user_metadata?.service_categories?.map((service) => (
+              {(currentUser.user_metadata?.service_categories ?? []).length > 0 ? (
+                currentUser.user_metadata?.service_categories?.map((service) => (
                   <span
                     key={service}
                     className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.6875rem] uppercase tracking-[0.24em] text-white/72 sm:text-xs"
@@ -159,7 +159,7 @@ export default function ProfilePage() {
             Email
           </p>
           <p className="mt-2 break-all text-base text-white sm:text-lg">
-            {user.email}
+            {currentUser.email}
           </p>
         </div>
 
@@ -168,7 +168,7 @@ export default function ProfilePage() {
             Display name
           </p>
           <p className="mt-2 text-lg text-white">
-            {user.user_metadata?.full_name || "Not set"}
+            {currentUser.user_metadata?.full_name || "Not set"}
           </p>
         </div>
 
