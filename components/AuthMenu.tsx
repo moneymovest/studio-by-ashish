@@ -10,6 +10,7 @@ import { useAuthUser } from "@/components/auth/useAuthUser";
 export default function AuthMenu() {
   const { user, loading } = useAuthUser();
   const [open, setOpen] = useState(false);
+  const isProfessional = user?.user_metadata?.account_type === "professional";
 
   const displayName = useMemo(
     () => user?.user_metadata?.full_name || user?.email || "Account",
@@ -74,7 +75,7 @@ export default function AuthMenu() {
             className="flex min-h-11 items-center gap-3 rounded-2xl px-4 py-3 text-sm text-white/80 transition hover:bg-white/6 hover:text-white"
           >
             <UserCircle2 className="h-4 w-4 text-cyan-300" />
-            Profile
+            {isProfessional ? "Dashboard" : "Profile"}
           </Link>
           <button
             type="button"

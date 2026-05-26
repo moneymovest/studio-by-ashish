@@ -1,44 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useAuthUser } from "@/components/auth/useAuthUser";
+import { ProfessionalDashboard } from "@/components/landing/professional-dashboard";
 import { RouteShell } from "@/components/landing/route-shell";
-import getSupabaseClient from "@/lib/supabaseClient";
 
 export default function ProfilePage() {
-  type User = {
-    email?: string;
-    user_metadata?: {
-      full_name?: string;
-      account_type?: "customer" | "professional";
-      service_categories?: string[];
-    };
-  } | null;
-  const [user, setUser] = useState<User>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let mounted = true;
-
-    async function init() {
-      const supabase = getSupabaseClient();
-      if (!mounted) return;
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
-
-      const { data } = await supabase.auth.getSession();
-      if (!mounted) return;
-      setUser(data.session?.user ?? null);
-      setLoading(false);
-    }
-
-    init();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const { user, loading } = useAuthUser();
 
   if (loading) {
     return (
@@ -74,6 +41,10 @@ export default function ProfilePage() {
 
   const accountType = user.user_metadata?.account_type ?? "customer";
   const isProfessional = accountType === "professional";
+
+  if (isProfessional) {
+    return <ProfessionalDashboard user={user} />;
+  }
 
   return (
     <RouteShell

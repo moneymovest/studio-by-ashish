@@ -4,6 +4,8 @@ import getSupabaseAdmin from "@/lib/supabaseServer";
 type CreateProfileBody = {
   userId?: string;
   fullName?: string;
+  avatarUrl?: string;
+  bio?: string;
   accountType?: string;
   serviceCategories?: string[];
 };
@@ -12,6 +14,8 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as CreateProfileBody;
   const userId = body.userId?.trim();
   const fullName = body.fullName?.trim() || null;
+  const avatarUrl = body.avatarUrl?.trim() || null;
+  const bio = body.bio?.trim() || null;
   const accountType = body.accountType?.trim();
   const serviceCategories = Array.isArray(body.serviceCategories)
     ? body.serviceCategories.map((service) => service.trim()).filter(Boolean)
@@ -33,6 +37,7 @@ export async function POST(request: Request) {
     {
       id: userId,
       full_name: fullName,
+      avatar_url: avatarUrl,
     },
     {
       onConflict: "id",
@@ -55,6 +60,7 @@ export async function POST(request: Request) {
           id: userId,
           user_id: userId,
           categories: serviceCategories,
+          bio,
         },
         {
           onConflict: "id",
