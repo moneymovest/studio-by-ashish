@@ -88,7 +88,8 @@ export function ProfessionalsBrowser({
       for (const professional of prosList) {
         const professionalId = String(professional["id"] ?? "");
         const userId = String(professional["user_id"] ?? professionalId);
-        const existing = mergedById.get(userId) || mergedById.get(professionalId);
+        const existing =
+          mergedById.get(userId) || mergedById.get(professionalId);
         mergedById.set(userId || professionalId, {
           id: professionalId || userId,
           user_id: userId,
@@ -104,7 +105,8 @@ export function ProfessionalsBrowser({
             existing?.service_radius_km,
           rating: (professional["rating"] as number) ?? existing?.rating,
           total_reviews:
-            (professional["total_reviews"] as number) ?? existing?.total_reviews,
+            (professional["total_reviews"] as number) ??
+            existing?.total_reviews,
           full_name:
             (profileMap[userId]?.["full_name"] as string | undefined) ||
             existing?.full_name ||
