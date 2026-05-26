@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import getSupabaseClient from "@/lib/supabaseClient";
 
 export type AuthUser = {
+  id: string;
   email?: string;
   user_metadata?: {
     full_name?: string;
