@@ -526,6 +526,18 @@ export default function ProfessionalProfilePage() {
 
       const savedProfile = data as ProfessionalRow | null;
       if (savedProfile) {
+        await supabase.from("profiles").upsert(
+          {
+            id: authUser.id,
+            full_name: savedProfile.display_name || nextDraft.display_name,
+            avatar_url: savedProfile.avatar_url || nextDraft.avatar_url || null,
+          },
+          {
+            onConflict: "id",
+            defaultToNull: false,
+          },
+        );
+
         setProfile(savedProfile);
         setProfileDraft({
           display_name: savedProfile.display_name || nextDraft.display_name,
@@ -560,6 +572,10 @@ export default function ProfessionalProfilePage() {
       const professionalId = row?.id || profile?.id || authUser.id;
       const extension = file.name.split(".").pop() || "jpg";
       const filePath = `avatars/${professionalId}/${crypto.randomUUID?.() ?? `${Date.now()}`}.${extension}`;
+      const previewUrl = URL.createObjectURL(file);
+
+      setProfile((current) => (current ? { ...current, avatar_url: previewUrl } : current));
+      setProfileDraft((current) => ({ ...current, avatar_url: previewUrl }));
 
       const { error: uploadError } = await supabase.storage
         .from("avatars")
@@ -607,6 +623,19 @@ export default function ProfessionalProfilePage() {
 
         const extension = file.name.split(".").pop() || (mediaType === "image" ? "jpg" : "mp4");
         const filePath = `portfolio-media/${professionalId}/${crypto.randomUUID?.() ?? `${Date.now()}`}.${extension}`;
+        const previewUrl = URL.createObjectURL(file);
+        const temporaryId = `${professionalId}-${Date.now()}-${file.name}`;
+
+        setMedia((current) => [
+          {
+            id: temporaryId,
+            professional_id: professionalId,
+            url: previewUrl,
+            type: mediaType,
+            created_at: new Date().toISOString(),
+          },
+          ...current,
+        ]);
 
         const { error: uploadError } = await supabase.storage
           .from("portfolio-media")
@@ -629,16 +658,11 @@ export default function ProfessionalProfilePage() {
           throw insertError;
         }
 
-        setMedia((current) => [
-          {
-            id: `${professionalId}-${Date.now()}-${file.name}`,
-            professional_id: professionalId,
-            url,
-            type: mediaType,
-            created_at: new Date().toISOString(),
-          },
-          ...current,
-        ]);
+        setMedia((current) =>
+          current.map((item) =>
+            item.id === temporaryId ? { ...item, id: url, url } : item,
+          ),
+        );
 
         if (mediaType === "image") {
           currentImageCount += 1;
@@ -656,22 +680,30 @@ export default function ProfessionalProfilePage() {
   }
 
   async function saveBio() {
-    await persistProfilePatch({ bio: bioDraft });
     setAboutEditing(false);
+    try {
+      await persistProfilePatch({ bio: bioDraft });
+    } catch {
+      setAboutEditing(true);
+    }
   }
 
   async function saveProfileEditor() {
-    await persistProfilePatch({
-      display_name: profileDraft.display_name,
-      handle: profileDraft.handle,
-      location: profileDraft.location,
-      bio: profileDraft.bio,
-      avatar_url: profileDraft.avatar_url,
-      booking_rate: profileDraft.booking_rate,
-      booking_rate_label: profileDraft.booking_rate_label,
-      roles: profileDraft.roles,
-    });
     setShowProfileEditor(false);
+    try {
+      await persistProfilePatch({
+        display_name: profileDraft.display_name,
+        handle: profileDraft.handle,
+        location: profileDraft.location,
+        bio: profileDraft.bio,
+        avatar_url: profileDraft.avatar_url,
+        booking_rate: profileDraft.booking_rate,
+        booking_rate_label: profileDraft.booking_rate_label,
+        roles: profileDraft.roles,
+      });
+    } catch {
+      setShowProfileEditor(true);
+    }
   }
 
   async function saveBookingRate() {
