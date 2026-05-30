@@ -491,26 +491,6 @@ export default function ProfessionalProfilePage() {
         },
         () => setRefreshTick((value) => value + 1),
       )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "portfolio_media",
-          filter: `professional_id=eq.${profile?.id || targetUserId}`,
-        },
-        () => setRefreshTick((value) => value + 1),
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "professionals",
-          filter: `id=eq.${targetUserId}`,
-        },
-        () => setRefreshTick((value) => value + 1),
-      )
       .subscribe();
 
     return () => {
@@ -608,7 +588,7 @@ export default function ProfessionalProfilePage() {
 
       const { data, error: saveError } = await supabase
         .from("professionals")
-        .upsert(payload, { onConflict: "user_id" })
+        .upsert(payload, { onConflict: "id" })
         .select("*")
         .maybeSingle();
 

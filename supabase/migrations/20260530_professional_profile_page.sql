@@ -93,7 +93,7 @@ create policy "services_write_owner"
       select 1
       from public.professionals p
       where p.id = professional_id
-        and p.user_id = auth.uid()
+        and p.id = auth.uid()
     )
   )
   with check (
@@ -101,7 +101,7 @@ create policy "services_write_owner"
       select 1
       from public.professionals p
       where p.id = professional_id
-        and p.user_id = auth.uid()
+        and p.id = auth.uid()
     )
   );
 
@@ -120,7 +120,7 @@ create policy "portfolio_write_owner"
       select 1
       from public.professionals p
       where p.id = professional_id
-        and p.user_id = auth.uid()
+        and p.id = auth.uid()
     )
   )
   with check (
@@ -128,7 +128,7 @@ create policy "portfolio_write_owner"
       select 1
       from public.professionals p
       where p.id = professional_id
-        and p.user_id = auth.uid()
+        and p.id = auth.uid()
     )
   );
 
@@ -154,7 +154,7 @@ create policy "bookings_select_owner_or_client"
       select 1
       from public.professionals p
       where p.id = professional_id
-        and p.user_id = auth.uid()
+        and p.id = auth.uid()
     )
   );
 
@@ -173,7 +173,7 @@ create policy "bookings_update_owner"
       select 1
       from public.professionals p
       where p.id = professional_id
-        and p.user_id = auth.uid()
+        and p.id = auth.uid()
     )
   )
   with check (
@@ -181,7 +181,7 @@ create policy "bookings_update_owner"
       select 1
       from public.professionals p
       where p.id = professional_id
-        and p.user_id = auth.uid()
+        and p.id = auth.uid()
     )
   );
 
