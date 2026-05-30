@@ -146,6 +146,17 @@ function mediaTypeFromFile(file: File): "image" | "video" | null {
   return null;
 }
 
+async function ensureStorageBuckets() {
+  const response = await fetch("/api/storage/bootstrap", {
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    const details = await response.text().catch(() => "");
+    throw new Error(details || "Unable to prepare upload storage.");
+  }
+}
+
 function iconButtonClass(active = true) {
   return [
     "inline-flex min-h-11 items-center justify-center rounded-full border px-4 text-sm transition",
@@ -649,6 +660,7 @@ export default function ProfessionalProfilePage() {
     setError(null);
 
     try {
+      await ensureStorageBuckets();
       const row = await ensureProfessionalRow();
       const professionalId = row?.id || profile?.id || authUser.id;
       const extension = file.name.split(".").pop() || "jpg";
@@ -696,6 +708,7 @@ export default function ProfessionalProfilePage() {
     setError(null);
 
     try {
+      await ensureStorageBuckets();
       const row = await ensureProfessionalRow();
       const professionalId = row?.id || profile?.id || authUser.id;
       let currentImageCount = media.filter(
