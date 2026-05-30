@@ -176,7 +176,9 @@ export default function ProfessionalProfilePage() {
   const [media, setMedia] = useState<MediaRow[]>([]);
   const [reviews, setReviews] = useState<ReviewRow[]>([]);
   const [bookings, setBookings] = useState<BookingRow[]>([]);
-  const [clientProfiles, setClientProfiles] = useState<Record<string, ClientProfile>>({});
+  const [clientProfiles, setClientProfiles] = useState<
+    Record<string, ClientProfile>
+  >({});
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -190,8 +192,14 @@ export default function ProfessionalProfilePage() {
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
   const [serviceDraft, setServiceDraft] = useState({ name: "", price: "" });
   const [bioDraft, setBioDraft] = useState("");
-  const [reviewDraft, setReviewDraft] = useState({ rating: 0, review_text: "" });
-  const [bookingRateDraft, setBookingRateDraft] = useState({ amount: "", label: "per day" });
+  const [reviewDraft, setReviewDraft] = useState({
+    rating: 0,
+    review_text: "",
+  });
+  const [bookingRateDraft, setBookingRateDraft] = useState({
+    amount: "",
+    label: "per day",
+  });
   const [profileDraft, setProfileDraft] = useState<ProfileDraft>({
     display_name: "",
     handle: "",
@@ -210,29 +218,48 @@ export default function ProfessionalProfilePage() {
   const displayName = profile?.display_name || "Professional";
   const handle =
     profile?.handle ||
-    (profileDraft.handle ? normalizeHandle(profileDraft.handle) : normalizeHandle(displayName)) ||
+    (profileDraft.handle
+      ? normalizeHandle(profileDraft.handle)
+      : normalizeHandle(displayName)) ||
     "professional";
-  const location = profile?.location || profileDraft.location || "Location not set";
-  const bio = profile?.bio || profileDraft.bio || "Add a short bio that tells clients what you do.";
+  const location =
+    profile?.location || profileDraft.location || "Location not set";
+  const bio =
+    profile?.bio ||
+    profileDraft.bio ||
+    "Add a short bio that tells clients what you do.";
   const avatarUrl = profile?.avatar_url || profileDraft.avatar_url || "";
   const roles = profile?.roles?.length ? profile.roles : profileDraft.roles;
   const ratingAverage = reviews.length
-    ? roundRating(reviews.reduce((sum, item) => sum + item.rating, 0) / reviews.length)
+    ? roundRating(
+        reviews.reduce((sum, item) => sum + item.rating, 0) / reviews.length,
+      )
     : 0;
   const jobsDone = profile?.jobs_done ?? 0;
-  const isOwner = Boolean(authUser && targetUserId && authUser.id === targetUserId);
+  const isOwner = Boolean(
+    authUser && targetUserId && authUser.id === targetUserId,
+  );
   const professionalView = isOwner && viewMode === "professional";
   const canEdit = professionalView;
   const activeProfileId = profile?.id || targetUserId || authUser?.id || null;
-  const imageCount = useMemo(() => media.filter((item) => item.type === "image").length, [media]);
-  const videoCount = useMemo(() => media.filter((item) => item.type === "video").length, [media]);
+  const imageCount = useMemo(
+    () => media.filter((item) => item.type === "image").length,
+    [media],
+  );
+  const videoCount = useMemo(
+    () => media.filter((item) => item.type === "video").length,
+    [media],
+  );
   const imageLimitReached = imageCount >= 10;
   const videoLimitReached = videoCount >= 5;
-  const bookingColumns = useMemo(() => ({
-    inquiry: bookings.filter((item) => item.status === "inquiry"),
-    confirmed: bookings.filter((item) => item.status === "confirmed"),
-    completed: bookings.filter((item) => item.status === "completed"),
-  }), [bookings]);
+  const bookingColumns = useMemo(
+    () => ({
+      inquiry: bookings.filter((item) => item.status === "inquiry"),
+      confirmed: bookings.filter((item) => item.status === "confirmed"),
+      completed: bookings.filter((item) => item.status === "completed"),
+    }),
+    [bookings],
+  );
   const visibleTabs = canEdit
     ? tabLabels
     : tabLabels.filter((tab) => tab.key !== "bookings");
@@ -258,7 +285,9 @@ export default function ProfessionalProfilePage() {
 
         if (requestedProfileId) {
           setTargetUserId(requestedProfileId);
-          setViewMode(user && user.id === requestedProfileId ? "professional" : "client");
+          setViewMode(
+            user && user.id === requestedProfileId ? "professional" : "client",
+          );
           setLoading(false);
           return;
         }
@@ -282,7 +311,11 @@ export default function ProfessionalProfilePage() {
         setLoading(false);
       } catch (initError) {
         if (!mounted) return;
-        setError(initError instanceof Error ? initError.message : "Unable to initialize the profile.");
+        setError(
+          initError instanceof Error
+            ? initError.message
+            : "Unable to initialize the profile.",
+        );
       }
     }
 
@@ -304,20 +337,40 @@ export default function ProfessionalProfilePage() {
       setLoading(true);
       setError(null);
 
-      const [{ data: professionalData, error: proError }, { data: profileData }, { data: serviceData }, { data: mediaData }, { data: reviewData }, { data: bookingData }] =
-        await Promise.all([
-          client
-            .from("professionals")
-            .select("*")
-            .eq("id", targetUserId)
-            .limit(1)
-            .maybeSingle(),
-          client.from("profiles").select("id, full_name, avatar_url").eq("id", targetUserId).limit(1).maybeSingle(),
-          client.from("services").select("*").order("id", { ascending: true }),
-          client.from("portfolio_media").select("*").order("created_at", { ascending: false }),
-          client.from("reviews").select("*").order("created_at", { ascending: false }),
-          client.from("bookings").select("*").order("created_at", { ascending: false }),
-        ]);
+      const [
+        { data: professionalData, error: proError },
+        { data: profileData },
+        { data: serviceData },
+        { data: mediaData },
+        { data: reviewData },
+        { data: bookingData },
+      ] = await Promise.all([
+        client
+          .from("professionals")
+          .select("*")
+          .eq("id", targetUserId)
+          .limit(1)
+          .maybeSingle(),
+        client
+          .from("profiles")
+          .select("id, full_name, avatar_url")
+          .eq("id", targetUserId)
+          .limit(1)
+          .maybeSingle(),
+        client.from("services").select("*").order("id", { ascending: true }),
+        client
+          .from("portfolio_media")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        client
+          .from("reviews")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        client
+          .from("bookings")
+          .select("*")
+          .order("created_at", { ascending: false }),
+      ]);
 
       if (!mounted) return;
 
@@ -357,7 +410,10 @@ export default function ProfessionalProfilePage() {
           .in("id", relatedClientIds);
 
         clientProfileMap = Object.fromEntries(
-          ((relatedProfiles ?? []) as ClientProfile[]).map((item) => [item.id, item]),
+          ((relatedProfiles ?? []) as ClientProfile[]).map((item) => [
+            item.id,
+            item,
+          ]),
         );
       }
 
@@ -374,20 +430,28 @@ export default function ProfessionalProfilePage() {
           professionalRow?.display_name ||
           profileData?.full_name ||
           "Professional",
-        handle: professionalRow?.handle || normalizeHandle(profileData?.full_name || "professional"),
+        handle:
+          professionalRow?.handle ||
+          normalizeHandle(profileData?.full_name || "professional"),
         location: professionalRow?.location || "",
         bio: professionalRow?.bio || "",
-        avatar_url: professionalRow?.avatar_url || profileData?.avatar_url || "",
-        booking_rate: professionalRow?.booking_rate != null ? String(professionalRow.booking_rate) : "",
+        avatar_url:
+          professionalRow?.avatar_url || profileData?.avatar_url || "",
+        booking_rate:
+          professionalRow?.booking_rate != null
+            ? String(professionalRow.booking_rate)
+            : "",
         booking_rate_label: professionalRow?.booking_rate_label || "per day",
-        roles:
-          professionalRow?.roles?.length
-            ? professionalRow.roles
-            : ["Photographer"],
+        roles: professionalRow?.roles?.length
+          ? professionalRow.roles
+          : ["Photographer"],
       });
       setBioDraft(professionalRow?.bio || "");
       setBookingRateDraft({
-        amount: professionalRow?.booking_rate != null ? String(professionalRow.booking_rate) : "",
+        amount:
+          professionalRow?.booking_rate != null
+            ? String(professionalRow.booking_rate)
+            : "",
         label: professionalRow?.booking_rate_label || "per day",
       });
       setLoading(false);
@@ -399,27 +463,52 @@ export default function ProfessionalProfilePage() {
       .channel(`profile-page:${targetUserId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "reviews", filter: `professional_id=eq.${profile?.id || targetUserId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "reviews",
+          filter: `professional_id=eq.${profile?.id || targetUserId}`,
+        },
         () => setRefreshTick((value) => value + 1),
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "bookings", filter: `professional_id=eq.${profile?.id || targetUserId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "bookings",
+          filter: `professional_id=eq.${profile?.id || targetUserId}`,
+        },
         () => setRefreshTick((value) => value + 1),
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "services", filter: `professional_id=eq.${profile?.id || targetUserId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "services",
+          filter: `professional_id=eq.${profile?.id || targetUserId}`,
+        },
         () => setRefreshTick((value) => value + 1),
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "portfolio_media", filter: `professional_id=eq.${profile?.id || targetUserId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "portfolio_media",
+          filter: `professional_id=eq.${profile?.id || targetUserId}`,
+        },
         () => setRefreshTick((value) => value + 1),
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "professionals", filter: `id=eq.${targetUserId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "professionals",
+          filter: `id=eq.${targetUserId}`,
+        },
         () => setRefreshTick((value) => value + 1),
       )
       .subscribe();
@@ -459,12 +548,15 @@ export default function ProfessionalProfilePage() {
 
     const payload = {
       id: authUser.id,
-      display_name: profileDraft.display_name || authUser.email || "Professional",
+      display_name:
+        profileDraft.display_name || authUser.email || "Professional",
       handle: normalizeHandle(profileDraft.handle || "professional"),
       location: profileDraft.location || null,
       bio: profileDraft.bio || null,
       avatar_url: profileDraft.avatar_url || null,
-      booking_rate: profileDraft.booking_rate ? Number(profileDraft.booking_rate) : null,
+      booking_rate: profileDraft.booking_rate
+        ? Number(profileDraft.booking_rate)
+        : null,
       booking_rate_label: profileDraft.booking_rate_label || "per day",
       roles: profileDraft.roles.length ? profileDraft.roles : ["Photographer"],
       jobs_done: 0,
@@ -472,7 +564,7 @@ export default function ProfessionalProfilePage() {
 
     const { data, error: ensureError } = await supabase
       .from("professionals")
-      .upsert(payload, { onConflict: "user_id" })
+      .upsert(payload, { onConflict: "id" })
       .select("*")
       .maybeSingle();
 
@@ -483,8 +575,7 @@ export default function ProfessionalProfilePage() {
     const nextProfile = (data as ProfessionalRow | null) ?? null;
     if (nextProfile) {
       setProfile(nextProfile);
-      setTargetUserId(nextProfile.user_id);
-      setRefreshTick((value) => value + 1);
+      setTargetUserId(nextProfile.id);
     }
 
     return nextProfile;
@@ -501,12 +592,15 @@ export default function ProfessionalProfilePage() {
       const row = await ensureProfessionalRow();
       const payload = {
         ...(row?.id ? { id: row.id } : {}),
-        display_name: nextDraft.display_name.trim() || authUser.email || "Professional",
+        display_name:
+          nextDraft.display_name.trim() || authUser.email || "Professional",
         handle: normalizeHandle(nextDraft.handle || "professional"),
         location: nextDraft.location.trim() || null,
         bio: nextDraft.bio.trim() || null,
         avatar_url: nextDraft.avatar_url.trim() || null,
-        booking_rate: nextDraft.booking_rate ? Number(nextDraft.booking_rate) : null,
+        booking_rate: nextDraft.booking_rate
+          ? Number(nextDraft.booking_rate)
+          : null,
         booking_rate_label: nextDraft.booking_rate_label.trim() || "per day",
         roles: nextDraft.roles.length ? nextDraft.roles : ["Photographer"],
         jobs_done: row?.jobs_done ?? profile?.jobs_done ?? 0,
@@ -543,16 +637,25 @@ export default function ProfessionalProfilePage() {
           location: savedProfile.location || nextDraft.location,
           bio: savedProfile.bio || nextDraft.bio,
           avatar_url: savedProfile.avatar_url || nextDraft.avatar_url,
-          booking_rate: savedProfile.booking_rate != null ? String(savedProfile.booking_rate) : nextDraft.booking_rate,
-          booking_rate_label: savedProfile.booking_rate_label || nextDraft.booking_rate_label,
-          roles: savedProfile.roles?.length ? savedProfile.roles : nextDraft.roles,
+          booking_rate:
+            savedProfile.booking_rate != null
+              ? String(savedProfile.booking_rate)
+              : nextDraft.booking_rate,
+          booking_rate_label:
+            savedProfile.booking_rate_label || nextDraft.booking_rate_label,
+          roles: savedProfile.roles?.length
+            ? savedProfile.roles
+            : nextDraft.roles,
         });
         setBioDraft(savedProfile.bio || nextDraft.bio);
         setBookingRateDraft({
-          amount: savedProfile.booking_rate != null ? String(savedProfile.booking_rate) : nextDraft.booking_rate,
-          label: savedProfile.booking_rate_label || nextDraft.booking_rate_label,
+          amount:
+            savedProfile.booking_rate != null
+              ? String(savedProfile.booking_rate)
+              : nextDraft.booking_rate,
+          label:
+            savedProfile.booking_rate_label || nextDraft.booking_rate_label,
         });
-        setRefreshTick((value) => value + 1);
       }
     } finally {
       setBusy(null);
@@ -572,7 +675,9 @@ export default function ProfessionalProfilePage() {
       const filePath = `avatars/${professionalId}/${crypto.randomUUID?.() ?? `${Date.now()}`}.${extension}`;
       const previewUrl = URL.createObjectURL(file);
 
-      setProfile((current) => (current ? { ...current, avatar_url: previewUrl } : current));
+      setProfile((current) =>
+        current ? { ...current, avatar_url: previewUrl } : current,
+      );
       setProfileDraft((current) => ({ ...current, avatar_url: previewUrl }));
 
       const { error: uploadError } = await supabase.storage
@@ -583,14 +688,22 @@ export default function ProfessionalProfilePage() {
         throw uploadError;
       }
 
-      const { data: publicUrl } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      const { data: publicUrl } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
       const nextAvatar = publicUrl.publicUrl;
 
-      setProfile((current) => (current ? { ...current, avatar_url: nextAvatar } : current));
+      setProfile((current) =>
+        current ? { ...current, avatar_url: nextAvatar } : current,
+      );
       setProfileDraft((current) => ({ ...current, avatar_url: nextAvatar }));
       await persistProfilePatch({ avatar_url: nextAvatar });
     } catch (avatarError) {
-      setError(avatarError instanceof Error ? avatarError.message : "Unable to upload avatar.");
+      setError(
+        avatarError instanceof Error
+          ? avatarError.message
+          : "Unable to upload avatar.",
+      );
     } finally {
       setBusy(null);
     }
@@ -605,8 +718,12 @@ export default function ProfessionalProfilePage() {
     try {
       const row = await ensureProfessionalRow();
       const professionalId = row?.id || profile?.id || authUser.id;
-      let currentImageCount = media.filter((item) => item.type === "image").length;
-      let currentVideoCount = media.filter((item) => item.type === "video").length;
+      let currentImageCount = media.filter(
+        (item) => item.type === "image",
+      ).length;
+      let currentVideoCount = media.filter(
+        (item) => item.type === "video",
+      ).length;
 
       for (const file of Array.from(files)) {
         const mediaType = mediaTypeFromFile(file);
@@ -619,7 +736,8 @@ export default function ProfessionalProfilePage() {
           throw new Error("Video limit reached (5/5).");
         }
 
-        const extension = file.name.split(".").pop() || (mediaType === "image" ? "jpg" : "mp4");
+        const extension =
+          file.name.split(".").pop() || (mediaType === "image" ? "jpg" : "mp4");
         const filePath = `portfolio-media/${professionalId}/${crypto.randomUUID?.() ?? `${Date.now()}`}.${extension}`;
         const previewUrl = URL.createObjectURL(file);
         const temporaryId = `${professionalId}-${Date.now()}-${file.name}`;
@@ -643,14 +761,18 @@ export default function ProfessionalProfilePage() {
           throw uploadError;
         }
 
-        const { data: publicUrl } = supabase.storage.from("portfolio-media").getPublicUrl(filePath);
+        const { data: publicUrl } = supabase.storage
+          .from("portfolio-media")
+          .getPublicUrl(filePath);
         const url = publicUrl.publicUrl;
 
-        const { error: insertError } = await supabase.from("portfolio_media").insert({
-          professional_id: professionalId,
-          url,
-          type: mediaType,
-        });
+        const { error: insertError } = await supabase
+          .from("portfolio_media")
+          .insert({
+            professional_id: professionalId,
+            url,
+            type: mediaType,
+          });
 
         if (insertError) {
           throw insertError;
@@ -669,9 +791,12 @@ export default function ProfessionalProfilePage() {
         }
       }
 
-      setRefreshTick((value) => value + 1);
     } catch (mediaError) {
-      setError(mediaError instanceof Error ? mediaError.message : "Unable to upload media.");
+      setError(
+        mediaError instanceof Error
+          ? mediaError.message
+          : "Unable to upload media.",
+      );
     } finally {
       setBusy(null);
     }
@@ -705,7 +830,10 @@ export default function ProfessionalProfilePage() {
   }
 
   async function saveBookingRate() {
-    await persistProfilePatch({ booking_rate: bookingRateDraft.amount, booking_rate_label: bookingRateDraft.label });
+    await persistProfilePatch({
+      booking_rate: bookingRateDraft.amount,
+      booking_rate_label: bookingRateDraft.label,
+    });
   }
 
   async function saveService() {
@@ -729,7 +857,9 @@ export default function ProfessionalProfilePage() {
 
         if (updateError) throw updateError;
       } else {
-        const { error: insertError } = await supabase.from("services").insert(payload);
+        const { error: insertError } = await supabase
+          .from("services")
+          .insert(payload);
         if (insertError) throw insertError;
       }
 
@@ -737,7 +867,11 @@ export default function ProfessionalProfilePage() {
       setServiceDraft({ name: "", price: "" });
       setRefreshTick((value) => value + 1);
     } catch (serviceError) {
-      setError(serviceError instanceof Error ? serviceError.message : "Unable to save service.");
+      setError(
+        serviceError instanceof Error
+          ? serviceError.message
+          : "Unable to save service.",
+      );
     } finally {
       setBusy(null);
     }
@@ -750,11 +884,18 @@ export default function ProfessionalProfilePage() {
     setError(null);
 
     try {
-      const { error: deleteError } = await supabase.from("services").delete().eq("id", serviceId);
+      const { error: deleteError } = await supabase
+        .from("services")
+        .delete()
+        .eq("id", serviceId);
       if (deleteError) throw deleteError;
       setRefreshTick((value) => value + 1);
     } catch (serviceError) {
-      setError(serviceError instanceof Error ? serviceError.message : "Unable to delete service.");
+      setError(
+        serviceError instanceof Error
+          ? serviceError.message
+          : "Unable to delete service.",
+      );
     } finally {
       setBusy(null);
     }
@@ -778,12 +919,19 @@ export default function ProfessionalProfilePage() {
       const service = data as ServiceRow | null;
       if (service) {
         setEditingServiceId(service.id);
-        setServiceDraft({ name: service.name, price: String(service.price ?? 0) });
+        setServiceDraft({
+          name: service.name,
+          price: String(service.price ?? 0),
+        });
       }
 
       setRefreshTick((value) => value + 1);
     } catch (serviceError) {
-      setError(serviceError instanceof Error ? serviceError.message : "Unable to add service.");
+      setError(
+        serviceError instanceof Error
+          ? serviceError.message
+          : "Unable to add service.",
+      );
     } finally {
       setBusy(null);
     }
@@ -809,7 +957,11 @@ export default function ProfessionalProfilePage() {
       setShowReviewForm(false);
       setRefreshTick((value) => value + 1);
     } catch (reviewError) {
-      setError(reviewError instanceof Error ? reviewError.message : "Unable to save review.");
+      setError(
+        reviewError instanceof Error
+          ? reviewError.message
+          : "Unable to save review.",
+      );
     } finally {
       setBusy(null);
     }
@@ -833,24 +985,38 @@ export default function ProfessionalProfilePage() {
       setShowBookingForm(false);
       setRefreshTick((value) => value + 1);
     } catch (bookingError) {
-      setError(bookingError instanceof Error ? bookingError.message : "Unable to create inquiry.");
+      setError(
+        bookingError instanceof Error
+          ? bookingError.message
+          : "Unable to create inquiry.",
+      );
     } finally {
       setBusy(null);
     }
   }
 
-  async function updateBookingStatus(bookingId: string, status: BookingRow["status"]) {
+  async function updateBookingStatus(
+    bookingId: string,
+    status: BookingRow["status"],
+  ) {
     if (!supabase) return;
 
     setBusy("booking");
     setError(null);
 
     try {
-      const { error: statusError } = await supabase.from("bookings").update({ status }).eq("id", bookingId);
+      const { error: statusError } = await supabase
+        .from("bookings")
+        .update({ status })
+        .eq("id", bookingId);
       if (statusError) throw statusError;
       setRefreshTick((value) => value + 1);
     } catch (bookingError) {
-      setError(bookingError instanceof Error ? bookingError.message : "Unable to update booking.");
+      setError(
+        bookingError instanceof Error
+          ? bookingError.message
+          : "Unable to update booking.",
+      );
     } finally {
       setBusy(null);
     }
@@ -891,7 +1057,11 @@ export default function ProfessionalProfilePage() {
     return (
       <main className="profile-page min-h-screen bg-[#0a0a0f] text-white">
         <div className="mx-auto flex min-h-screen w-full max-w-[1440px] items-center justify-center px-4">
-          <div className={panelClass() + " w-full max-w-lg p-6 text-sm text-white/70"}>
+          <div
+            className={
+              panelClass() + " w-full max-w-lg p-6 text-sm text-white/70"
+            }
+          >
             Supabase is not configured in this environment.
           </div>
         </div>
@@ -910,7 +1080,9 @@ export default function ProfessionalProfilePage() {
               <Triangle className="h-4 w-4 fill-white text-white" />
             </span>
             <span className="leading-tight">
-              <span className="block text-[0.9rem] font-medium tracking-[0.28em]">FRAMEBOOK</span>
+              <span className="block text-[0.9rem] font-medium tracking-[0.28em]">
+                FRAMEBOOK
+              </span>
               <span className="block text-[0.65rem] uppercase tracking-[0.32em] text-white/45">
                 Professional&apos;s Network
               </span>
@@ -919,15 +1091,24 @@ export default function ProfessionalProfilePage() {
 
           <div className="flex items-center gap-3">
             <div className="hidden items-center gap-2 rounded-full border border-[rgba(255,255,255,0.07)] bg-[#111118] px-4 py-2 text-sm text-white/70 md:flex">
-              Viewing as: <span className="text-white">{professionalView ? "professional" : "client"}</span>
+              Viewing as:{" "}
+              <span className="text-white">
+                {professionalView ? "professional" : "client"}
+              </span>
             </div>
             <button
               type="button"
-              onClick={() => setViewMode((current) => (current === "professional" ? "client" : "professional"))}
+              onClick={() =>
+                setViewMode((current) =>
+                  current === "professional" ? "client" : "professional",
+                )
+              }
               disabled={!isOwner}
               className={iconButtonClass(isOwner)}
             >
-              {professionalView ? "Switch to client view" : "Preview professional view"}
+              {professionalView
+                ? "Switch to client view"
+                : "Preview professional view"}
             </button>
             <ProfileMenu
               user={authUser}
@@ -1060,7 +1241,10 @@ export default function ProfessionalProfilePage() {
             </div>
 
             <div className="mt-5 grid grid-cols-3 gap-px overflow-hidden rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.04)]">
-              <StatCard label="Rating" value={reviews.length ? `★ ${ratingAverage.toFixed(1)}` : "0"} />
+              <StatCard
+                label="Rating"
+                value={reviews.length ? `★ ${ratingAverage.toFixed(1)}` : "0"}
+              />
               <StatCard label="Reviews" value={String(reviews.length)} />
               <StatCard label="Jobs Done" value={String(jobsDone)} />
             </div>
@@ -1082,7 +1266,11 @@ export default function ProfessionalProfilePage() {
               {tab.label}
             </button>
           ))}
-          {!canEdit ? <span className="text-xs text-white/35">Bookings are visible to the profile owner only.</span> : null}
+          {!canEdit ? (
+            <span className="text-xs text-white/35">
+              Bookings are visible to the profile owner only.
+            </span>
+          ) : null}
         </div>
 
         <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_360px]">
@@ -1105,8 +1293,12 @@ export default function ProfessionalProfilePage() {
               <ServicesTab
                 canEdit={canEdit}
                 services={services}
-                bookingRate={profile?.booking_rate ?? Number(bookingRateDraft.amount || 0)}
-                bookingRateLabel={profile?.booking_rate_label || bookingRateDraft.label}
+                bookingRate={
+                  profile?.booking_rate ?? Number(bookingRateDraft.amount || 0)
+                }
+                bookingRateLabel={
+                  profile?.booking_rate_label || bookingRateDraft.label
+                }
                 editingServiceId={editingServiceId}
                 serviceDraft={serviceDraft}
                 onEdit={(service) => selectServiceForEdit(service)}
@@ -1143,7 +1335,9 @@ export default function ProfessionalProfilePage() {
               <BookingsTab
                 bookings={bookingColumns}
                 clientProfiles={clientProfiles}
-                onMove={(bookingId, status) => void updateBookingStatus(bookingId, status)}
+                onMove={(bookingId, status) =>
+                  void updateBookingStatus(bookingId, status)
+                }
               />
             ) : null}
           </div>
@@ -1169,8 +1363,12 @@ export default function ProfessionalProfilePage() {
             <ServicesSidebar
               canEdit={canEdit}
               services={services}
-              bookingRate={profile?.booking_rate ?? Number(bookingRateDraft.amount || 0)}
-              bookingRateLabel={profile?.booking_rate_label || bookingRateDraft.label}
+              bookingRate={
+                profile?.booking_rate ?? Number(bookingRateDraft.amount || 0)
+              }
+              bookingRateLabel={
+                profile?.booking_rate_label || bookingRateDraft.label
+              }
               editingServiceId={editingServiceId}
               serviceDraft={serviceDraft}
               onEdit={(service) => selectServiceForEdit(service)}
@@ -1207,37 +1405,60 @@ export default function ProfessionalProfilePage() {
         <Modal title="Edit profile" onClose={() => setShowProfileEditor(false)}>
           <div className="space-y-4">
             <label className="block space-y-2">
-              <span className="text-xs uppercase tracking-[0.24em] text-white/45">Display name</span>
+              <span className="text-xs uppercase tracking-[0.24em] text-white/45">
+                Display name
+              </span>
               <input
                 value={profileDraft.display_name}
-                onChange={(event) => setProfileDraft((current) => ({ ...current, display_name: event.target.value }))}
+                onChange={(event) =>
+                  setProfileDraft((current) => ({
+                    ...current,
+                    display_name: event.target.value,
+                  }))
+                }
                 title="Display name"
                 placeholder="Display name"
                 className={fieldClass()}
               />
             </label>
             <label className="block space-y-2">
-              <span className="text-xs uppercase tracking-[0.24em] text-white/45">Handle</span>
+              <span className="text-xs uppercase tracking-[0.24em] text-white/45">
+                Handle
+              </span>
               <input
                 value={profileDraft.handle}
-                onChange={(event) => setProfileDraft((current) => ({ ...current, handle: event.target.value }))}
+                onChange={(event) =>
+                  setProfileDraft((current) => ({
+                    ...current,
+                    handle: event.target.value,
+                  }))
+                }
                 title="Handle"
                 placeholder="Handle"
                 className={fieldClass()}
               />
             </label>
             <label className="block space-y-2">
-              <span className="text-xs uppercase tracking-[0.24em] text-white/45">Location</span>
+              <span className="text-xs uppercase tracking-[0.24em] text-white/45">
+                Location
+              </span>
               <input
                 value={profileDraft.location}
-                onChange={(event) => setProfileDraft((current) => ({ ...current, location: event.target.value }))}
+                onChange={(event) =>
+                  setProfileDraft((current) => ({
+                    ...current,
+                    location: event.target.value,
+                  }))
+                }
                 title="Location"
                 placeholder="Location"
                 className={fieldClass()}
               />
             </label>
             <div className="space-y-2">
-              <span className="text-xs uppercase tracking-[0.24em] text-white/45">Roles</span>
+              <span className="text-xs uppercase tracking-[0.24em] text-white/45">
+                Roles
+              </span>
               <div className="flex flex-wrap gap-2">
                 {roleChoices.map((role) => {
                   const active = profileDraft.roles.includes(role);
@@ -1266,10 +1487,18 @@ export default function ProfessionalProfilePage() {
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <button type="button" onClick={() => setShowProfileEditor(false)} className={iconButtonClass(false)}>
+              <button
+                type="button"
+                onClick={() => setShowProfileEditor(false)}
+                className={iconButtonClass(false)}
+              >
                 Cancel
               </button>
-              <button type="button" onClick={() => void saveProfileEditor()} className={iconButtonClass(true)}>
+              <button
+                type="button"
+                onClick={() => void saveProfileEditor()}
+                className={iconButtonClass(true)}
+              >
                 <Save className="mr-2 h-4 w-4" />
                 Save
               </button>
@@ -1282,13 +1511,22 @@ export default function ProfessionalProfilePage() {
         <Modal title="Book now" onClose={() => setShowBookingForm(false)}>
           <div className="space-y-4 text-sm text-white/70">
             <p>
-              Send a booking inquiry to this professional. The booking will appear in the owner&apos;s pipeline as an inquiry.
+              Send a booking inquiry to this professional. The booking will
+              appear in the owner&apos;s pipeline as an inquiry.
             </p>
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => setShowBookingForm(false)} className={iconButtonClass(false)}>
+              <button
+                type="button"
+                onClick={() => setShowBookingForm(false)}
+                className={iconButtonClass(false)}
+              >
                 Cancel
               </button>
-              <button type="button" onClick={() => void createInquiry()} className={iconButtonClass(true)}>
+              <button
+                type="button"
+                onClick={() => void createInquiry()}
+                className={iconButtonClass(true)}
+              >
                 <Send className="mr-2 h-4 w-4" />
                 Send inquiry
               </button>
@@ -1321,7 +1559,11 @@ function ProfileMenu({
         className="flex min-h-11 items-center gap-3 rounded-full border border-[rgba(255,255,255,0.07)] bg-[#111118] px-3 py-2 text-left text-sm text-white"
       >
         {avatarUrl ? (
-          <img src={avatarUrl} alt={displayName} className="h-8 w-8 rounded-full object-cover" />
+          <img
+            src={avatarUrl}
+            alt={displayName}
+            className="h-8 w-8 rounded-full object-cover"
+          />
         ) : (
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#1a1035] text-xs text-[#b7a9ff]">
             {initials(displayName)}
@@ -1336,7 +1578,11 @@ function ProfileMenu({
           <div className="px-3 py-2 text-xs uppercase tracking-[0.24em] text-white/35">
             {user?.email || "Not signed in"}
           </div>
-          <Link href="/profile" className="flex items-center gap-3 rounded-[12px] px-3 py-3 text-sm text-white/80 hover:bg-[#18181f]" onClick={() => setOpen(false)}>
+          <Link
+            href="/profile"
+            className="flex items-center gap-3 rounded-[12px] px-3 py-3 text-sm text-white/80 hover:bg-[#18181f]"
+            onClick={() => setOpen(false)}
+          >
             <Eye className="h-4 w-4 text-[#6c63ff]" />
             Open profile
           </Link>
@@ -1353,7 +1599,11 @@ function ProfileMenu({
               Sign out
             </button>
           ) : (
-            <Link href="/login" className="flex items-center gap-3 rounded-[12px] px-3 py-3 text-sm text-white/80 hover:bg-[#18181f]" onClick={() => setOpen(false)}>
+            <Link
+              href="/login"
+              className="flex items-center gap-3 rounded-[12px] px-3 py-3 text-sm text-white/80 hover:bg-[#18181f]"
+              onClick={() => setOpen(false)}
+            >
               <MessageSquare className="h-4 w-4 text-[#6c63ff]" />
               Sign in
             </Link>
@@ -1367,7 +1617,9 @@ function ProfileMenu({
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-[#111118] px-4 py-3">
-      <div className="text-[0.65rem] uppercase tracking-[0.24em] text-white/35">{label}</div>
+      <div className="text-[0.65rem] uppercase tracking-[0.24em] text-white/35">
+        {label}
+      </div>
       <div className="mt-2 text-lg font-medium text-white">{value}</div>
     </div>
   );
@@ -1400,7 +1652,9 @@ function PortfolioPanel({
         <div className="mb-4 rounded-[12px] border border-dashed border-[#6c63ff]/45 bg-[#18181f] p-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="text-sm text-white">Drop photos or videos · Browse files</div>
+              <div className="text-sm text-white">
+                Drop photos or videos · Browse files
+              </div>
               <div className="mt-1 text-xs text-white/45">
                 {imageCount} / 10 images · {videoCount} / 5 videos
               </div>
@@ -1410,7 +1664,9 @@ function PortfolioPanel({
                 type="button"
                 onClick={onBrowse}
                 disabled={imageLimitReached && videoLimitReached}
-                className={iconButtonClass(!(imageLimitReached && videoLimitReached))}
+                className={iconButtonClass(
+                  !(imageLimitReached && videoLimitReached),
+                )}
               >
                 <Upload className="mr-2 h-4 w-4" />
                 Upload media
@@ -1431,21 +1687,25 @@ function PortfolioPanel({
           </div>
           <div className="mt-3 flex flex-wrap gap-2 text-xs text-white/45">
             {imageLimitReached ? (
-              <span className="rounded-full border border-[#6c63ff]/35 bg-[#6c63ff]/10 px-3 py-1 text-[#c6c0ff]">Image limit reached (10/10)</span>
+              <span className="rounded-full border border-[#6c63ff]/35 bg-[#6c63ff]/10 px-3 py-1 text-[#c6c0ff]">
+                Image limit reached (10/10)
+              </span>
             ) : null}
             {videoLimitReached ? (
-              <span className="rounded-full border border-[#6c63ff]/35 bg-[#6c63ff]/10 px-3 py-1 text-[#c6c0ff]">Video limit reached (5/5)</span>
+              <span className="rounded-full border border-[#6c63ff]/35 bg-[#6c63ff]/10 px-3 py-1 text-[#c6c0ff]">
+                Video limit reached (5/5)
+              </span>
             ) : null}
           </div>
         </div>
       ) : null}
 
       <div className="grid grid-cols-3 gap-[3px]">
-        {media.length > 0 ? media.map((item) => <MediaTile key={item.id} item={item} />) : (
-          Array.from({ length: 9 }, (_, index) => (
-            <div key={index} className="aspect-square bg-[#18181f]" />
-          ))
-        )}
+        {media.length > 0
+          ? media.map((item) => <MediaTile key={item.id} item={item} />)
+          : Array.from({ length: 9 }, (_, index) => (
+              <div key={index} className="aspect-square bg-[#18181f]" />
+            ))}
       </div>
     </section>
   );
@@ -1455,7 +1715,11 @@ function MediaTile({ item }: { item: MediaRow }) {
   return (
     <div className="group relative aspect-square overflow-hidden bg-[#18181f]">
       {item.type === "image" ? (
-        <img src={item.url} alt="Portfolio item" className="h-full w-full object-cover" />
+        <img
+          src={item.url}
+          alt="Portfolio item"
+          className="h-full w-full object-cover"
+        />
       ) : (
         <div className="flex h-full w-full items-center justify-center bg-[#111118] text-white/35">
           <Video className="h-8 w-8" />
@@ -1505,11 +1769,17 @@ function ServicesTab({
     <section className={panelClass() + " p-4 space-y-4"}>
       <div className="flex items-center justify-between gap-3">
         <div>
-          <div className="text-xs uppercase tracking-[0.24em] text-white/35">Services & Pricing</div>
+          <div className="text-xs uppercase tracking-[0.24em] text-white/35">
+            Services & Pricing
+          </div>
           <h2 className="mt-1 text-lg font-medium text-white">Services</h2>
         </div>
         {canEdit ? (
-          <button type="button" onClick={onAddService} className={iconButtonClass(true)}>
+          <button
+            type="button"
+            onClick={onAddService}
+            className={iconButtonClass(true)}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Add service
           </button>
@@ -1517,67 +1787,118 @@ function ServicesTab({
       </div>
 
       <div className="space-y-2">
-        {services.length > 0 ? services.map((service) => (
-          <div key={service.id} className="rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#18181f] p-3">
-            {editingServiceId === service.id ? (
-              <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_120px]">
-                <input
-                  value={serviceDraft.name}
-                  onChange={(event) => onChangeDraft({ ...serviceDraft, name: event.target.value })}
-                  className={fieldClass()}
-                  title="Service name"
-                  placeholder="Service name"
-                />
-                <input
-                  value={serviceDraft.price}
-                  onChange={(event) => onChangeDraft({ ...serviceDraft, price: event.target.value })}
-                  className={fieldClass()}
-                  inputMode="numeric"
-                  title="Service price"
-                  placeholder="Price"
-                />
-                <div className="flex gap-2 sm:col-span-2">
-                  <button type="button" onClick={onSaveService} className={iconButtonClass(true)}>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save
-                  </button>
-                  <button type="button" onClick={onCancelEdit} className={iconButtonClass(false)}>
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <div className="text-sm text-white">{service.name}</div>
-                  <div className="mt-1 text-sm text-white/55">{formatMoney(service.price)}</div>
-                </div>
-                {canEdit ? (
-                  <div className="flex items-center gap-2">
-                    <button type="button" onClick={() => onEdit(service)} title="Edit service" aria-label="Edit service" className="rounded-full border border-[rgba(255,255,255,0.07)] bg-[#111118] p-2 text-white/60">
-                      <Pencil className="h-4 w-4" />
+        {services.length > 0 ? (
+          services.map((service) => (
+            <div
+              key={service.id}
+              className="rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#18181f] p-3"
+            >
+              {editingServiceId === service.id ? (
+                <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_120px]">
+                  <input
+                    value={serviceDraft.name}
+                    onChange={(event) =>
+                      onChangeDraft({
+                        ...serviceDraft,
+                        name: event.target.value,
+                      })
+                    }
+                    className={fieldClass()}
+                    title="Service name"
+                    placeholder="Service name"
+                  />
+                  <input
+                    value={serviceDraft.price}
+                    onChange={(event) =>
+                      onChangeDraft({
+                        ...serviceDraft,
+                        price: event.target.value,
+                      })
+                    }
+                    className={fieldClass()}
+                    inputMode="numeric"
+                    title="Service price"
+                    placeholder="Price"
+                  />
+                  <div className="flex gap-2 sm:col-span-2">
+                    <button
+                      type="button"
+                      onClick={onSaveService}
+                      className={iconButtonClass(true)}
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      Save
                     </button>
-                    <button type="button" onClick={() => onDeleteService(service.id)} title="Delete service" aria-label="Delete service" className="rounded-full border border-[rgba(255,255,255,0.07)] bg-[#111118] p-2 text-white/60">
-                      <Trash2 className="h-4 w-4" />
+                    <button
+                      type="button"
+                      onClick={onCancelEdit}
+                      className={iconButtonClass(false)}
+                    >
+                      Cancel
                     </button>
                   </div>
-                ) : null}
-              </div>
-            )}
+                </div>
+              ) : (
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-sm text-white">{service.name}</div>
+                    <div className="mt-1 text-sm text-white/55">
+                      {formatMoney(service.price)}
+                    </div>
+                  </div>
+                  {canEdit ? (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => onEdit(service)}
+                        title="Edit service"
+                        aria-label="Edit service"
+                        className="rounded-full border border-[rgba(255,255,255,0.07)] bg-[#111118] p-2 text-white/60"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onDeleteService(service.id)}
+                        title="Delete service"
+                        aria-label="Delete service"
+                        className="rounded-full border border-[rgba(255,255,255,0.07)] bg-[#111118] p-2 text-white/60"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </div>
+          ))
+        ) : (
+          <div className="rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#18181f] p-4 text-sm text-white/55">
+            No services yet.
           </div>
-        )) : <div className="rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#18181f] p-4 text-sm text-white/55">No services yet.</div>}
+        )}
       </div>
 
       <div className="rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#18181f] p-4">
-        <div className="text-xs uppercase tracking-[0.24em] text-white/35">Booking rate</div>
+        <div className="text-xs uppercase tracking-[0.24em] text-white/35">
+          Booking rate
+        </div>
         <div className="mt-2 text-lg text-white">
-          {formatMoney(bookingRate)} {bookingRateLabel ? <span className="text-sm text-white/55">{bookingRateLabel}</span> : null}
+          {formatMoney(bookingRate)}{" "}
+          {bookingRateLabel ? (
+            <span className="text-sm text-white/55">{bookingRateLabel}</span>
+          ) : null}
         </div>
         {canEdit ? (
           <div className="mt-3 grid gap-2 sm:grid-cols-[120px_minmax(0,1fr)_auto]">
             <input
               value={bookingRateDraft.amount}
-              onChange={(event) => onChangeBookingRateDraft({ ...bookingRateDraft, amount: event.target.value })}
+              onChange={(event) =>
+                onChangeBookingRateDraft({
+                  ...bookingRateDraft,
+                  amount: event.target.value,
+                })
+              }
               className={fieldClass()}
               inputMode="numeric"
               title="Booking rate amount"
@@ -1585,12 +1906,21 @@ function ServicesTab({
             />
             <input
               value={bookingRateDraft.label}
-              onChange={(event) => onChangeBookingRateDraft({ ...bookingRateDraft, label: event.target.value })}
+              onChange={(event) =>
+                onChangeBookingRateDraft({
+                  ...bookingRateDraft,
+                  label: event.target.value,
+                })
+              }
               className={fieldClass()}
               title="Booking rate label"
               placeholder="per day"
             />
-            <button type="button" onClick={onSaveBookingRate} className={iconButtonClass(true)}>
+            <button
+              type="button"
+              onClick={onSaveBookingRate}
+              className={iconButtonClass(true)}
+            >
               <Save className="mr-2 h-4 w-4" />
               Save
             </button>
@@ -1628,11 +1958,17 @@ function ReviewsTab({
     <section className={panelClass() + " p-4 space-y-4"}>
       <div className="flex items-center justify-between gap-3">
         <div>
-          <div className="text-xs uppercase tracking-[0.24em] text-white/35">Ratings</div>
+          <div className="text-xs uppercase tracking-[0.24em] text-white/35">
+            Ratings
+          </div>
           <h2 className="mt-1 text-lg font-medium text-white">Reviews</h2>
         </div>
         {!canEdit ? (
-          <button type="button" onClick={onToggleForm} className={iconButtonClass(true)}>
+          <button
+            type="button"
+            onClick={onToggleForm}
+            className={iconButtonClass(true)}
+          >
             Leave a review
           </button>
         ) : null}
@@ -1645,27 +1981,45 @@ function ReviewsTab({
               <button
                 key={index}
                 type="button"
-                onClick={() => onChangeReviewDraft({ ...reviewDraft, rating: index + 1 })}
+                onClick={() =>
+                  onChangeReviewDraft({ ...reviewDraft, rating: index + 1 })
+                }
                 title={`Rate ${index + 1} star${index === 0 ? "" : "s"}`}
                 aria-label={`Rate ${index + 1} star${index === 0 ? "" : "s"}`}
                 className={`rounded-full p-1 ${index < reviewDraft.rating ? "text-[#6c63ff]" : "text-white/30"}`}
               >
-                <Star className={`h-5 w-5 ${index < reviewDraft.rating ? "fill-current" : ""}`} />
+                <Star
+                  className={`h-5 w-5 ${index < reviewDraft.rating ? "fill-current" : ""}`}
+                />
               </button>
             ))}
           </div>
           <textarea
             value={reviewDraft.review_text}
-            onChange={(event) => onChangeReviewDraft({ ...reviewDraft, review_text: event.target.value })}
+            onChange={(event) =>
+              onChangeReviewDraft({
+                ...reviewDraft,
+                review_text: event.target.value,
+              })
+            }
             rows={4}
             className={fieldClass() + " resize-none"}
             placeholder="Write your review"
           />
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={onToggleForm} className={iconButtonClass(false)}>
+            <button
+              type="button"
+              onClick={onToggleForm}
+              className={iconButtonClass(false)}
+            >
               Cancel
             </button>
-            <button type="button" onClick={onSaveReview} className={iconButtonClass(true)} disabled={!authUser || !reviewDraft.rating}>
+            <button
+              type="button"
+              onClick={onSaveReview}
+              className={iconButtonClass(true)}
+              disabled={!authUser || !reviewDraft.rating}
+            >
               <Save className="mr-2 h-4 w-4" />
               Submit
             </button>
@@ -1678,10 +2032,14 @@ function ReviewsTab({
           <>
             <div className="flex items-end justify-between gap-3">
               <div>
-                <div className="text-[2rem] font-medium leading-none text-white">{average.toFixed(1)}</div>
+                <div className="text-[2rem] font-medium leading-none text-white">
+                  {average.toFixed(1)}
+                </div>
                 <div className="mt-2 flex items-center gap-2">
                   {renderStaticStars(average)}
-                  <span className="text-sm text-white/55">{reviews.length} review{reviews.length === 1 ? "" : "s"}</span>
+                  <span className="text-sm text-white/55">
+                    {reviews.length} review{reviews.length === 1 ? "" : "s"}
+                  </span>
                 </div>
               </div>
               {!canEdit ? null : null}
@@ -1692,18 +2050,29 @@ function ReviewsTab({
                 const client = clientProfiles[review.client_id];
                 const name = client?.full_name || "Client";
                 return (
-                  <div key={review.id} className="rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#111118] p-3">
+                  <div
+                    key={review.id}
+                    className="rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#111118] p-3"
+                  >
                     <div className="flex gap-3">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1a1035] text-sm text-[#b7a9ff]">
                         {initials(name)}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-3">
-                          <div className="truncate text-sm text-white">{name}</div>
-                          <div className="text-xs text-white/35">{formatDate(review.created_at)}</div>
+                          <div className="truncate text-sm text-white">
+                            {name}
+                          </div>
+                          <div className="text-xs text-white/35">
+                            {formatDate(review.created_at)}
+                          </div>
                         </div>
-                        <div className="mt-1">{renderStaticStars(review.rating)}</div>
-                        <p className="mt-2 text-sm leading-6 text-white/65">{review.review_text || "No review text provided."}</p>
+                        <div className="mt-1">
+                          {renderStaticStars(review.rating)}
+                        </div>
+                        <p className="mt-2 text-sm leading-6 text-white/65">
+                          {review.review_text || "No review text provided."}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -1712,7 +2081,10 @@ function ReviewsTab({
             </div>
           </>
         ) : (
-          <div className="text-sm text-white/55">No reviews yet — your score will appear here once a client rates you.</div>
+          <div className="text-sm text-white/55">
+            No reviews yet — your score will appear here once a client rates
+            you.
+          </div>
         )}
       </div>
     </section>
@@ -1737,7 +2109,11 @@ function BookingsTab({
   clientProfiles,
   onMove,
 }: {
-  bookings: { inquiry: BookingRow[]; confirmed: BookingRow[]; completed: BookingRow[] };
+  bookings: {
+    inquiry: BookingRow[];
+    confirmed: BookingRow[];
+    completed: BookingRow[];
+  };
   clientProfiles: Record<string, ClientProfile>;
   onMove: (bookingId: string, status: BookingRow["status"]) => void;
 }) {
@@ -1751,42 +2127,71 @@ function BookingsTab({
     <section className={panelClass() + " p-4"}>
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <div className="text-xs uppercase tracking-[0.24em] text-white/35">Bookings</div>
-          <h2 className="mt-1 text-lg font-medium text-white">Booking pipeline</h2>
+          <div className="text-xs uppercase tracking-[0.24em] text-white/35">
+            Bookings
+          </div>
+          <h2 className="mt-1 text-lg font-medium text-white">
+            Booking pipeline
+          </h2>
         </div>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
         {columns.map((column) => (
-          <div key={column.key} className="rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#18181f] p-3">
-            <div className="text-xs uppercase tracking-[0.24em] text-white/35">{column.label}</div>
+          <div
+            key={column.key}
+            className="rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#18181f] p-3"
+          >
+            <div className="text-xs uppercase tracking-[0.24em] text-white/35">
+              {column.label}
+            </div>
             <div className="mt-3 space-y-3">
-              {bookings[column.key].length > 0 ? bookings[column.key].map((booking) => {
-                const client = clientProfiles[booking.client_id];
-                const nextStatus = booking.status === "inquiry" ? "confirmed" : booking.status === "confirmed" ? "completed" : null;
-                return (
-                  <div key={booking.id} className="rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#111118] p-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <div className="text-sm text-white">{client?.full_name || "Client"}</div>
-                        <div className="mt-1 text-xs text-white/40">{formatDate(booking.created_at)}</div>
+              {bookings[column.key].length > 0 ? (
+                bookings[column.key].map((booking) => {
+                  const client = clientProfiles[booking.client_id];
+                  const nextStatus =
+                    booking.status === "inquiry"
+                      ? "confirmed"
+                      : booking.status === "confirmed"
+                        ? "completed"
+                        : null;
+                  return (
+                    <div
+                      key={booking.id}
+                      className="rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#111118] p-3"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <div className="text-sm text-white">
+                            {client?.full_name || "Client"}
+                          </div>
+                          <div className="mt-1 text-xs text-white/40">
+                            {formatDate(booking.created_at)}
+                          </div>
+                        </div>
+                        <span className="rounded-full border border-[#6c63ff]/35 bg-[#6c63ff]/10 px-2 py-1 text-xs text-[#c6c0ff]">
+                          {booking.status}
+                        </span>
                       </div>
-                      <span className="rounded-full border border-[#6c63ff]/35 bg-[#6c63ff]/10 px-2 py-1 text-xs text-[#c6c0ff]">
-                        {booking.status}
-                      </span>
+                      {nextStatus ? (
+                        <button
+                          type="button"
+                          onClick={() => onMove(booking.id, nextStatus)}
+                          className="mt-3 inline-flex min-h-10 items-center rounded-full border border-[rgba(255,255,255,0.07)] bg-[#18181f] px-4 text-xs text-white"
+                        >
+                          {nextStatus === "completed"
+                            ? "Mark complete"
+                            : "Confirm"}
+                        </button>
+                      ) : null}
                     </div>
-                    {nextStatus ? (
-                      <button
-                        type="button"
-                        onClick={() => onMove(booking.id, nextStatus)}
-                        className="mt-3 inline-flex min-h-10 items-center rounded-full border border-[rgba(255,255,255,0.07)] bg-[#18181f] px-4 text-xs text-white"
-                      >
-                        {nextStatus === "completed" ? "Mark complete" : "Confirm"}
-                      </button>
-                    ) : null}
-                  </div>
-                );
-              }) : <div className="rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#111118] p-3 text-sm text-white/45">No bookings here.</div>}
+                  );
+                })
+              ) : (
+                <div className="rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#111118] p-3 text-sm text-white/45">
+                  No bookings here.
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -1816,7 +2221,9 @@ function AboutCard({
 }) {
   return (
     <section className={panelClass() + " p-4 space-y-3"}>
-      <div className="text-xs uppercase tracking-[0.24em] text-white/35">About</div>
+      <div className="text-xs uppercase tracking-[0.24em] text-white/35">
+        About
+      </div>
       {aboutEditing ? (
         <>
           <textarea
@@ -1829,10 +2236,18 @@ function AboutCard({
           />
           {canEdit ? (
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={onCancel} className={iconButtonClass(false)}>
+              <button
+                type="button"
+                onClick={onCancel}
+                className={iconButtonClass(false)}
+              >
                 Cancel
               </button>
-              <button type="button" onClick={onSaveBio} className={iconButtonClass(true)}>
+              <button
+                type="button"
+                onClick={onSaveBio}
+                className={iconButtonClass(true)}
+              >
                 <Save className="mr-2 h-4 w-4" />
                 Save
               </button>
@@ -1846,7 +2261,9 @@ function AboutCard({
           className="w-full rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#18181f] p-4 text-left text-sm leading-6 text-white/70"
         >
           {bio}
-          {canEdit ? <div className="mt-3 text-xs text-[#b7a9ff]">Click to edit bio</div> : null}
+          {canEdit ? (
+            <div className="mt-3 text-xs text-[#b7a9ff]">Click to edit bio</div>
+          ) : null}
         </button>
       )}
     </section>
@@ -1882,12 +2299,16 @@ function RatingsSidebar({
 }) {
   return (
     <section className={panelClass() + " p-4 space-y-4"}>
-      <div className="text-xs uppercase tracking-[0.24em] text-white/35">Ratings</div>
+      <div className="text-xs uppercase tracking-[0.24em] text-white/35">
+        Ratings
+      </div>
       {reviews.length > 0 ? (
         <>
           <div className="flex items-end justify-between gap-3">
             <div>
-              <div className="text-[2rem] font-medium leading-none text-white">{average.toFixed(1)}</div>
+              <div className="text-[2rem] font-medium leading-none text-white">
+                {average.toFixed(1)}
+              </div>
               <div className="mt-2">{renderStaticStars(average)}</div>
             </div>
             <div className="text-sm text-white/55">{reviews.length} total</div>
@@ -1898,16 +2319,25 @@ function RatingsSidebar({
               const client = clientProfiles[review.client_id];
               const name = client?.full_name || "Client";
               return (
-                <div key={review.id} className="rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#111118] p-3">
+                <div
+                  key={review.id}
+                  className="rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#111118] p-3"
+                >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1a1035] text-xs text-[#b7a9ff]">{initials(name)}</div>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1a1035] text-xs text-[#b7a9ff]">
+                      {initials(name)}
+                    </div>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm text-white">{name}</div>
-                      <div className="text-xs text-white/35">{formatDate(review.created_at)}</div>
+                      <div className="text-xs text-white/35">
+                        {formatDate(review.created_at)}
+                      </div>
                     </div>
                   </div>
                   <div className="mt-2">{renderStaticStars(review.rating)}</div>
-                  <p className="mt-2 text-sm leading-6 text-white/65">{review.review_text || "No text provided."}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/65">
+                    {review.review_text || "No text provided."}
+                  </p>
                 </div>
               );
             })}
@@ -1920,7 +2350,11 @@ function RatingsSidebar({
       )}
 
       {!canEdit ? (
-        <button type="button" onClick={onToggleForm} className={iconButtonClass(true)}>
+        <button
+          type="button"
+          onClick={onToggleForm}
+          className={iconButtonClass(true)}
+        >
           Leave a review
         </button>
       ) : null}
@@ -1932,27 +2366,45 @@ function RatingsSidebar({
               <button
                 key={index}
                 type="button"
-                onClick={() => onChangeReviewDraft({ ...reviewDraft, rating: index + 1 })}
+                onClick={() =>
+                  onChangeReviewDraft({ ...reviewDraft, rating: index + 1 })
+                }
                 title={`Rate ${index + 1} star${index === 0 ? "" : "s"}`}
                 aria-label={`Rate ${index + 1} star${index === 0 ? "" : "s"}`}
                 className={`rounded-full p-1 ${index < reviewDraft.rating ? "text-[#6c63ff]" : "text-white/30"}`}
               >
-                <Star className={`h-5 w-5 ${index < reviewDraft.rating ? "fill-current" : ""}`} />
+                <Star
+                  className={`h-5 w-5 ${index < reviewDraft.rating ? "fill-current" : ""}`}
+                />
               </button>
             ))}
           </div>
           <textarea
             value={reviewDraft.review_text}
-            onChange={(event) => onChangeReviewDraft({ ...reviewDraft, review_text: event.target.value })}
+            onChange={(event) =>
+              onChangeReviewDraft({
+                ...reviewDraft,
+                review_text: event.target.value,
+              })
+            }
             rows={4}
             className={fieldClass() + " resize-none"}
             placeholder="Share your experience"
           />
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={onToggleForm} className={iconButtonClass(false)}>
+            <button
+              type="button"
+              onClick={onToggleForm}
+              className={iconButtonClass(false)}
+            >
               Cancel
             </button>
-            <button type="button" onClick={onSaveReview} className={iconButtonClass(true)} disabled={!authUser || !reviewDraft.rating}>
+            <button
+              type="button"
+              onClick={onSaveReview}
+              className={iconButtonClass(true)}
+              disabled={!authUser || !reviewDraft.rating}
+            >
               <Save className="mr-2 h-4 w-4" />
               Submit
             </button>
@@ -1977,7 +2429,13 @@ function Modal({
       <div className="w-full max-w-lg rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#111118] p-4 shadow-none">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div className="text-lg font-medium text-white">{title}</div>
-          <button type="button" onClick={onClose} title="Close modal" aria-label="Close modal" className="rounded-full border border-[rgba(255,255,255,0.07)] bg-[#18181f] p-2 text-white/55">
+          <button
+            type="button"
+            onClick={onClose}
+            title="Close modal"
+            aria-label="Close modal"
+            className="rounded-full border border-[rgba(255,255,255,0.07)] bg-[#18181f] p-2 text-white/55"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
