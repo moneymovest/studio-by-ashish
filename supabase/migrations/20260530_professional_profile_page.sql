@@ -267,3 +267,47 @@ create trigger portfolio_media_limit
 before insert on public.portfolio_media
 for each row
 execute function public.enforce_portfolio_media_limit();
+
+drop policy if exists "avatars_read_public" on storage.objects;
+create policy "avatars_read_public"
+  on storage.objects
+  for select
+  using (bucket_id = 'avatars');
+
+drop policy if exists "avatars_write_owner" on storage.objects;
+create policy "avatars_write_owner"
+  on storage.objects
+  for insert
+  with check (
+    bucket_id = 'avatars'
+    and auth.uid() is not null
+  );
+
+drop policy if exists "avatars_update_owner" on storage.objects;
+create policy "avatars_update_owner"
+  on storage.objects
+  for update
+  using (bucket_id = 'avatars' and auth.uid() is not null)
+  with check (bucket_id = 'avatars' and auth.uid() is not null);
+
+drop policy if exists "portfolio_read_public" on storage.objects;
+create policy "portfolio_read_public"
+  on storage.objects
+  for select
+  using (bucket_id = 'portfolio-media');
+
+drop policy if exists "portfolio_write_owner" on storage.objects;
+create policy "portfolio_write_owner"
+  on storage.objects
+  for insert
+  with check (
+    bucket_id = 'portfolio-media'
+    and auth.uid() is not null
+  );
+
+drop policy if exists "portfolio_update_owner" on storage.objects;
+create policy "portfolio_update_owner"
+  on storage.objects
+  for update
+  using (bucket_id = 'portfolio-media' and auth.uid() is not null)
+  with check (bucket_id = 'portfolio-media' and auth.uid() is not null);

@@ -207,8 +207,7 @@ export default function ProfessionalProfilePage() {
   const requestedProfileId =
     searchParams.get("profileId") || searchParams.get("id") || null;
 
-  const displayName =
-    profile?.display_name || profileDraft.display_name || authUser?.user_metadata?.full_name || "Professional";
+  const displayName = profile?.display_name || "Professional";
   const handle =
     profile?.handle ||
     (profileDraft.handle ? normalizeHandle(profileDraft.handle) : normalizeHandle(displayName)) ||
@@ -573,6 +572,7 @@ export default function ProfessionalProfilePage() {
       const { data: publicUrl } = supabase.storage.from("avatars").getPublicUrl(filePath);
       const nextAvatar = publicUrl.publicUrl;
 
+      setProfile((current) => (current ? { ...current, avatar_url: nextAvatar } : current));
       setProfileDraft((current) => ({ ...current, avatar_url: nextAvatar }));
       await persistProfilePatch({ avatar_url: nextAvatar });
     } catch (avatarError) {
@@ -628,6 +628,17 @@ export default function ProfessionalProfilePage() {
         if (insertError) {
           throw insertError;
         }
+
+        setMedia((current) => [
+          {
+            id: `${professionalId}-${Date.now()}-${file.name}`,
+            professional_id: professionalId,
+            url,
+            type: mediaType,
+            created_at: new Date().toISOString(),
+          },
+          ...current,
+        ]);
 
         if (mediaType === "image") {
           currentImageCount += 1;
