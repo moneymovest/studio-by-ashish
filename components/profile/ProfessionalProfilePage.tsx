@@ -309,7 +309,7 @@ export default function ProfessionalProfilePage() {
           client
             .from("professionals")
             .select("*")
-            .eq("user_id", targetUserId)
+            .eq("id", targetUserId)
             .limit(1)
             .maybeSingle(),
           client.from("profiles").select("id, full_name, avatar_url").eq("id", targetUserId).limit(1).maybeSingle(),
@@ -373,20 +373,19 @@ export default function ProfessionalProfilePage() {
         display_name:
           professionalRow?.display_name ||
           profileData?.full_name ||
-          authUser?.user_metadata?.full_name ||
           "Professional",
-        handle: professionalRow?.handle || normalizeHandle(profileData?.full_name || authUser?.user_metadata?.full_name || "professional"),
+        handle: professionalRow?.handle || normalizeHandle(profileData?.full_name || "professional"),
         location: professionalRow?.location || "",
-        bio: professionalRow?.bio || authUser?.user_metadata?.bio || "",
-        avatar_url: professionalRow?.avatar_url || profileData?.avatar_url || authUser?.user_metadata?.avatar_url || "",
+        bio: professionalRow?.bio || "",
+        avatar_url: professionalRow?.avatar_url || profileData?.avatar_url || "",
         booking_rate: professionalRow?.booking_rate != null ? String(professionalRow.booking_rate) : "",
         booking_rate_label: professionalRow?.booking_rate_label || "per day",
         roles:
           professionalRow?.roles?.length
             ? professionalRow.roles
-            : (authUser?.user_metadata?.service_categories ?? ["Photographer"]),
+            : ["Photographer"],
       });
-      setBioDraft(professionalRow?.bio || authUser?.user_metadata?.bio || "");
+      setBioDraft(professionalRow?.bio || "");
       setBookingRateDraft({
         amount: professionalRow?.booking_rate != null ? String(professionalRow.booking_rate) : "",
         label: professionalRow?.booking_rate_label || "per day",
@@ -420,7 +419,7 @@ export default function ProfessionalProfilePage() {
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "professionals", filter: `user_id=eq.${targetUserId}` },
+        { event: "*", schema: "public", table: "professionals", filter: `id=eq.${targetUserId}` },
         () => setRefreshTick((value) => value + 1),
       )
       .subscribe();
@@ -459,9 +458,9 @@ export default function ProfessionalProfilePage() {
     if (profile) return profile;
 
     const payload = {
-      user_id: authUser.id,
-      display_name: profileDraft.display_name || authUser.user_metadata?.full_name || authUser.email || "Professional",
-      handle: normalizeHandle(profileDraft.handle || authUser.user_metadata?.full_name || "professional"),
+      id: authUser.id,
+      display_name: profileDraft.display_name || authUser.email || "Professional",
+      handle: normalizeHandle(profileDraft.handle || "professional"),
       location: profileDraft.location || null,
       bio: profileDraft.bio || null,
       avatar_url: profileDraft.avatar_url || null,
@@ -501,9 +500,8 @@ export default function ProfessionalProfilePage() {
       const nextDraft = { ...profileDraft, ...patch };
       const row = await ensureProfessionalRow();
       const payload = {
-        user_id: authUser.id,
         ...(row?.id ? { id: row.id } : {}),
-        display_name: nextDraft.display_name.trim() || authUser.user_metadata?.full_name || authUser.email || "Professional",
+        display_name: nextDraft.display_name.trim() || authUser.email || "Professional",
         handle: normalizeHandle(nextDraft.handle || "professional"),
         location: nextDraft.location.trim() || null,
         bio: nextDraft.bio.trim() || null,
