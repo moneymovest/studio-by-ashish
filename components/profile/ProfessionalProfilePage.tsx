@@ -274,6 +274,12 @@ export default function ProfessionalProfilePage() {
   const visibleTabs = canEdit
     ? tabLabels
     : tabLabels.filter((tab) => tab.key !== "bookings");
+  const isSavingProfile = busy === "profile";
+  const isUploadingAvatar = busy === "avatar";
+  const isUploadingMedia = busy === "media";
+  const isSavingService = busy === "service";
+  const isSavingReview = busy === "review";
+  const isSavingBooking = busy === "booking";
 
   useEffect(() => {
     let mounted = true;
@@ -539,6 +545,7 @@ export default function ProfessionalProfilePage() {
 
     const payload = {
       id: authUser.id,
+      user_id: authUser.id,
       display_name:
         profileDraft.display_name || authUser.email || "Professional",
       handle: normalizeHandle(profileDraft.handle || "professional"),
@@ -783,7 +790,6 @@ export default function ProfessionalProfilePage() {
           currentVideoCount += 1;
         }
       }
-
     } catch (mediaError) {
       setError(
         mediaError instanceof Error
@@ -1130,7 +1136,7 @@ export default function ProfessionalProfilePage() {
                   <button
                     type="button"
                     onClick={() => canEdit && avatarInputRef.current?.click()}
-                    disabled={!canEdit}
+                    disabled={!canEdit || isUploadingAvatar}
                     className="group relative h-24 w-24 overflow-hidden rounded-full border-[3px] border-[#0a0a0f] bg-[#18181f]"
                   >
                     {avatarUrl ? (
@@ -1147,8 +1153,12 @@ export default function ProfessionalProfilePage() {
                     {canEdit ? (
                       <div className="absolute inset-0 hidden items-center justify-center bg-black/55 text-center text-xs text-white group-hover:flex">
                         <div>
-                          <Camera className="mx-auto mb-1 h-4 w-4" />
-                          Change photo
+                          {isUploadingAvatar ? (
+                            <Loader2 className="mx-auto mb-1 h-4 w-4 animate-spin" />
+                          ) : (
+                            <Camera className="mx-auto mb-1 h-4 w-4" />
+                          )}
+                          {isUploadingAvatar ? "Uploading..." : "Change photo"}
                         </div>
                       </div>
                     ) : null}
@@ -1279,6 +1289,7 @@ export default function ProfessionalProfilePage() {
                 onBrowse={() => mediaInputRef.current?.click()}
                 onUpload={(files) => void handleMediaPick(files)}
                 mediaInputRef={mediaInputRef}
+                isUploadingMedia={isUploadingMedia}
               />
             ) : null}
 
@@ -1306,6 +1317,7 @@ export default function ProfessionalProfilePage() {
                 bookingRateDraft={bookingRateDraft}
                 onChangeBookingRateDraft={setBookingRateDraft}
                 onSaveBookingRate={() => void saveBookingRate()}
+                isSavingService={isSavingService}
               />
             ) : null}
 
@@ -1321,6 +1333,7 @@ export default function ProfessionalProfilePage() {
                 reviewDraft={reviewDraft}
                 onChangeReviewDraft={setReviewDraft}
                 onSaveReview={() => void saveReview()}
+                isSavingReview={isSavingReview}
               />
             ) : null}
 
@@ -1341,6 +1354,7 @@ export default function ProfessionalProfilePage() {
               bio={bio}
               aboutEditing={aboutEditing}
               bioDraft={bioDraft}
+              isSavingBio={isSavingProfile}
               onStartEdit={() => {
                 setAboutEditing(true);
                 setBioDraft(bio);
@@ -1376,6 +1390,7 @@ export default function ProfessionalProfilePage() {
               bookingRateDraft={bookingRateDraft}
               onChangeBookingRateDraft={setBookingRateDraft}
               onSaveBookingRate={() => void saveBookingRate()}
+              isSavingService={isSavingService}
             />
 
             <RatingsSidebar
@@ -1490,10 +1505,11 @@ export default function ProfessionalProfilePage() {
               <button
                 type="button"
                 onClick={() => void saveProfileEditor()}
-                className={iconButtonClass(true)}
+                disabled={isSavingProfile}
+                className={iconButtonClass(!isSavingProfile)}
               >
                 <Save className="mr-2 h-4 w-4" />
-                Save
+                {isSavingProfile ? "Saving..." : "Save"}
               </button>
             </div>
           </div>
@@ -1628,6 +1644,7 @@ function PortfolioPanel({
   onBrowse,
   onUpload,
   mediaInputRef,
+  isUploadingMedia,
 }: {
   canEdit: boolean;
   imageCount: number;
@@ -1638,6 +1655,7 @@ function PortfolioPanel({
   onBrowse: () => void;
   onUpload: (files: FileList | null) => void;
   mediaInputRef: RefObject<HTMLInputElement | null>;
+  isUploadingMedia: boolean;
 }) {
   return (
     <section className={panelClass() + " p-4"}>
@@ -1656,13 +1674,16 @@ function PortfolioPanel({
               <button
                 type="button"
                 onClick={onBrowse}
-                disabled={imageLimitReached && videoLimitReached}
+                disabled={
+                  isUploadingMedia || (imageLimitReached && videoLimitReached)
+                }
                 className={iconButtonClass(
-                  !(imageLimitReached && videoLimitReached),
+                  !isUploadingMedia &&
+                    !(imageLimitReached && videoLimitReached),
                 )}
               >
                 <Upload className="mr-2 h-4 w-4" />
-                Upload media
+                {isUploadingMedia ? "Uploading..." : "Upload media"}
               </button>
               <input
                 ref={mediaInputRef}
@@ -1741,6 +1762,7 @@ function ServicesTab({
   bookingRateDraft,
   onChangeBookingRateDraft,
   onSaveBookingRate,
+  isSavingService,
 }: {
   canEdit: boolean;
   services: ServiceRow[];
@@ -1757,6 +1779,7 @@ function ServicesTab({
   bookingRateDraft: { amount: string; label: string };
   onChangeBookingRateDraft: (draft: { amount: string; label: string }) => void;
   onSaveBookingRate: () => void;
+  isSavingService: boolean;
 }) {
   return (
     <section className={panelClass() + " p-4 space-y-4"}>
@@ -1817,10 +1840,11 @@ function ServicesTab({
                     <button
                       type="button"
                       onClick={onSaveService}
-                      className={iconButtonClass(true)}
+                      disabled={isSavingService}
+                      className={iconButtonClass(!isSavingService)}
                     >
                       <Save className="mr-2 h-4 w-4" />
-                      Save
+                      {isSavingService ? "Saving..." : "Save"}
                     </button>
                     <button
                       type="button"
@@ -1912,10 +1936,11 @@ function ServicesTab({
             <button
               type="button"
               onClick={onSaveBookingRate}
-              className={iconButtonClass(true)}
+              disabled={isSavingService}
+              className={iconButtonClass(!isSavingService)}
             >
               <Save className="mr-2 h-4 w-4" />
-              Save
+              {isSavingService ? "Saving..." : "Save"}
             </button>
           </div>
         ) : null}
@@ -1935,6 +1960,7 @@ function ReviewsTab({
   reviewDraft,
   onChangeReviewDraft,
   onSaveReview,
+  isSavingReview,
 }: {
   canEdit: boolean;
   authUser: User | null;
@@ -1946,6 +1972,7 @@ function ReviewsTab({
   reviewDraft: { rating: number; review_text: string };
   onChangeReviewDraft: (draft: { rating: number; review_text: string }) => void;
   onSaveReview: () => void;
+  isSavingReview: boolean;
 }) {
   return (
     <section className={panelClass() + " p-4 space-y-4"}>
@@ -2010,11 +2037,11 @@ function ReviewsTab({
             <button
               type="button"
               onClick={onSaveReview}
-              className={iconButtonClass(true)}
-              disabled={!authUser || !reviewDraft.rating}
+              className={iconButtonClass(!isSavingReview)}
+              disabled={!authUser || !reviewDraft.rating || isSavingReview}
             >
               <Save className="mr-2 h-4 w-4" />
-              Submit
+              {isSavingReview ? "Saving..." : "Submit"}
             </button>
           </div>
         </div>
@@ -2202,6 +2229,7 @@ function AboutCard({
   onChangeBioDraft,
   onSaveBio,
   onCancel,
+  isSavingBio,
 }: {
   canEdit: boolean;
   bio: string;
@@ -2211,6 +2239,7 @@ function AboutCard({
   onChangeBioDraft: (value: string) => void;
   onSaveBio: () => void;
   onCancel: () => void;
+  isSavingBio: boolean;
 }) {
   return (
     <section className={panelClass() + " p-4 space-y-3"}>
@@ -2239,10 +2268,11 @@ function AboutCard({
               <button
                 type="button"
                 onClick={onSaveBio}
-                className={iconButtonClass(true)}
+                disabled={isSavingBio}
+                className={iconButtonClass(!isSavingBio)}
               >
                 <Save className="mr-2 h-4 w-4" />
-                Save
+                {isSavingBio ? "Saving..." : "Save"}
               </button>
             </div>
           ) : null}

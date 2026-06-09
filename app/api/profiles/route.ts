@@ -129,6 +129,7 @@ export async function POST(request: Request) {
         // Build payload using only columns that exist in the table.
         const payload: Record<string, any> = {};
         payload.id = resolvedUserId;
+        payload.user_id = resolvedUserId;
         if (cols.includes("user_id")) payload.user_id = resolvedUserId;
         if (cols.includes("bio")) payload.bio = bio;
         if (cols.includes("categories")) payload.categories = serviceCategories;
