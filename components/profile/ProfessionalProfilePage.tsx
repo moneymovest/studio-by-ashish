@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode, RefObject } from "react";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import {
   Camera,
@@ -177,6 +178,7 @@ function fieldClass() {
 export default function ProfessionalProfilePage() {
   const supabase = getSupabaseClient();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const mediaInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -225,6 +227,7 @@ export default function ProfessionalProfilePage() {
   const searchKey = searchParams.toString();
   const requestedProfileId =
     searchParams.get("profileId") || searchParams.get("id") || null;
+  const redirectTarget = `/login?next=${encodeURIComponent("/profile")}`;
 
   const displayName = profile?.display_name || "Professional";
   const handle =
@@ -316,15 +319,15 @@ export default function ProfessionalProfilePage() {
           return;
         }
 
-        const { data: firstProfessional } = await supabase
-          .from("professionals")
-          .select("user_id")
-          .limit(1)
-          .maybeSingle();
-
         if (!mounted) return;
-        setTargetUserId(firstProfessional?.user_id ?? null);
+        setTargetUserId(null);
         setViewMode("client");
+        setProfile(null);
+        setServices([]);
+        setMedia([]);
+        setReviews([]);
+        setBookings([]);
+        setClientProfiles({});
         setLoading(false);
       } catch (initError) {
         if (!mounted) return;
@@ -515,6 +518,14 @@ export default function ProfessionalProfilePage() {
       void client.removeChannel(channel);
     };
   }, [authUser, profile?.id, refreshTick, supabase, targetUserId]);
+
+  useEffect(() => {
+    if (loading) return;
+
+    if (!authUser) {
+      router.replace(redirectTarget);
+    }
+  }, [authUser, loading, redirectTarget, router]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -1046,6 +1057,18 @@ export default function ProfessionalProfilePage() {
           <div className="flex items-center gap-3 rounded-[12px] border border-[rgba(255,255,255,0.07)] bg-[#111118] px-4 py-3 text-sm text-white/70">
             <Loader2 className="h-4 w-4 animate-spin text-[#6c63ff]" />
             Loading professional profile...
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!authUser) {
+    return (
+      <main className="profile-page min-h-screen bg-[#0a0a0f] text-white">
+        <div className="mx-auto flex min-h-screen w-full max-w-[1440px] items-center justify-center px-4">
+          <div className={panelClass() + " w-full max-w-lg p-6 text-sm text-white/70"}>
+            Your session expired. Redirecting to sign in...
           </div>
         </div>
       </main>

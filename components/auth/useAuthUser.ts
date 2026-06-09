@@ -19,6 +19,20 @@ export function useAuthUser() {
   const [user, setUser] = useState<AuthUser>(null);
   const [loading, setLoading] = useState(() => Boolean(getSupabaseClient()));
 
+  function clearSupabaseSessionStorage() {
+    if (typeof window === "undefined") return;
+
+    const storages = [window.localStorage, window.sessionStorage];
+    for (const storage of storages) {
+      for (let index = storage.length - 1; index >= 0; index -= 1) {
+        const key = storage.key(index);
+        if (key && key.startsWith("sb-") && key.endsWith("-auth-token")) {
+          storage.removeItem(key);
+        }
+      }
+    }
+  }
+
   useEffect(() => {
     let mounted = true;
     const supabase = getSupabaseClient();
@@ -42,6 +56,7 @@ export function useAuthUser() {
         const message = err instanceof Error ? err.message : String(err ?? "");
         if (message.toLowerCase().includes("invalid compact jws")) {
           try {
+            clearSupabaseSessionStorage();
             await supabase.auth.signOut({ scope: "local" });
           } catch {
             // If signOut also fails, the session is still unusable.
