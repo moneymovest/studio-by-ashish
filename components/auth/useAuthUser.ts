@@ -39,6 +39,14 @@ export function useAuthUser() {
         // Log for diagnostics and clear any partial state.
         // eslint-disable-next-line no-console
         console.error("supabase.getSession error", err);
+        const message = err instanceof Error ? err.message : String(err ?? "");
+        if (message.toLowerCase().includes("invalid compact jws")) {
+          try {
+            await supabase.auth.signOut({ scope: "local" });
+          } catch {
+            // If signOut also fails, the session is still unusable.
+          }
+        }
         if (!mounted) return;
         setUser(null);
       } finally {
